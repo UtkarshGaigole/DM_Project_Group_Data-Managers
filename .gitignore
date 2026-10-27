@@ -1,0 +1,16 @@
+# Ignore large datasets and databases
+*.csv
+*.xlsx
+*.db
+*.parquet
+*.json
+
+# Ignore Mac/Windows system files
+.DS_Store
+Thumbs.db
+
+# Ignore Python environment files and cache
+__pycache__/
+*.pyc
+.env
+venv/
