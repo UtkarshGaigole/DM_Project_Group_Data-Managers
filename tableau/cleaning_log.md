@@ -128,13 +128,13 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 ### Step T1.2: Set Up Text-File Inputs in Tableau Prep
 
 **Status:** In Progress _(Not Started / In Progress / Under Review / Done)_
-**Date / author / reviewer:** _date_ / _name_ / _name_
+**Date / author / reviewer:** 2026-11-06 / Utkarsh / Aditya
 
 | Field | Value |
 |---|---|
 | Issue ID(s) (issue register) | — (setup step) |
 | Table | papers, samples, curves |
-| Flow step name in `.tflx` | Raw Papers, Raw Samples, _curves input: to fill in_ |
+| Flow step name in `.tflx` | Raw Papers, Raw Samples, Raw Curves |
 | Python equivalent (`src/`) | `src/load_data.py → load_starrydata_file()` |
 
 **Why this step matters**
@@ -166,7 +166,7 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 ### Step T1.3: Remove Trailing Blank Record
 
 **Status:** In Progress _(Not Started / In Progress / Under Review / Done)_
-**Date / author / reviewer:** _date_ / _name_ / _name_
+**Date / author / reviewer:** 2026-11-06 / Utkarsh / Aditya
 
 | Field | Value |
 |---|---|
@@ -219,7 +219,7 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 ### Step T2.1: Convert Timestamps to UTC
 
 **Status:** In Progress _(Not Started / In Progress / Under Review / Done)_
-**Date / author / reviewer:** _date_ / _name_ / _name_
+**Date / author / reviewer:** 2026-11-06 / Utkarsh / Aditya
 
 | Field | Value |
 |---|---|
