@@ -1,0 +1,78 @@
+# Data Governance and AI Risk Assessment
+
+**Project:** Starrydata AI-ready data product — Data-Managers, SRH University of Applied Sciences Heidelberg  
+**Source snapshot:** `20261001_starrydata2`  
+**Snapshot timestamp:** `2026-10-01 02:00:01 UTC+0900 (JST)` (`2026-09-30 17:00:01 UTC`)  
+**Dataset DOI:** [10.6084/m9.figshare.34036677.v1](https://doi.org/10.6084/m9.figshare.34036677.v1)  
+**Source files:** `starrydata_papers.csv`, `starrydata_samples.csv`, `starrydata_curves.csv`  
+**License:** CC BY 4.0, shown on the Figshare record and confirmed by Dr. Mato in email dated 29 October 2026. The Figshare snapshot is the project source; a later GitHub release without a stated license is excluded.  
+**Assessment basis:** Project tracker and team profiling results reproduced on 6 November 2026. Findings describe the raw snapshot unless explicitly marked as a transformation issue.
+
+## 1. Governance purpose and responsibilities
+
+This document records ownership, stewardship, lineage, and the controls required before machine-learning use. Role assignments reflect the project tracker and should be confirmed with the dataset owner where they concern upstream decisions.
+
+| Role | Responsibility | Assigned person or group |
+|---|---|---|
+| Source data owner | Maintains Starrydata and decides on upstream corrections or clarification requests. | Starrydata Research Team; Dr. Mato is the project contact. |
+| Project lead and integration | Coordinates scope, decisions, and integration of the project outputs. | Utkarsh Gaigole. |
+| Data steward and documentation | Maintains the issue register, data dictionary, governance and AI-risk documentation, FAIR record, and documentation of decisions. | Akshay Anilkumar Sreedevi (governance and data dictionary); Sreelakshmi Koyambrath Sivaraman (FAIR/metadata and issue register, per tracker). |
+| Pipeline and profiling | Maintains the profiling notebook and Python loading, flattening, validation, and transformation functions. | Aditya Sanjay Pawar. |
+| Tableau Prep flow | Maintains the visible Tableau Prep cleaning and transformation flow. | Utkarsh Gaigole. |
+| Data users | Use the documented outputs for analysis and model development, subject to their scope and limitations. | Materials science researchers and data scientists. |
+
+These project responsibilities do not transfer ownership of the upstream Starrydata data or authorize the group to alter the source record.
+
+## 2. Lineage and change control
+
+The project uses the frozen Figshare snapshot identified above. The source database timestamp is recorded in `db_snapshot.txt`; the raw CSVs should be retained unchanged. The GitHub release dated 20 October 2026 is excluded because the tracker records no license statement for it.
+
+The intended lineage is: Figshare snapshot → immutable raw files → profiling and validation → Python preparation of curve points and other agreed inputs → Tableau Prep transformations and documented joins/filters → validated project outputs. The project decision log specifies that curve arrays are unpacked once in Python into `data/interim/curve_points.csv`; Tableau Prep then applies the visible scope, axis, range, join, and aggregation logic. `data/interim/` is for intermediate/prototype data; reserve `data/processed/` for outputs that have passed the agreed validations.
+
+For each run, retain the input snapshot/DOI, code and flow version, transformation rules, row counts at each stage, validation results, output names, and reasons for any quarantined or excluded records. Preserve source values alongside normalized values where practical. Never silently overwrite conflicting source values or remove rows without recording the rule and counts. Freeze the version used for the presentation/report and record later changes in the project log.
+
+## 3. Machine-learning readiness declaration
+
+**Status: The raw snapshot is not ready for direct model training. It is conditionally suitable for exploratory, task-specific machine-learning work after the transformation issues below are resolved and the final outputs pass validation.** A readiness decision applies to a defined prediction target and population; it does not certify the whole database for every modeling task.
+
+The team-reproduced raw snapshot contains 56,495 paper rows, 106,331 sample rows, and 237,313 curve rows. For `samples.sample_info`, 72,456 values contain JSON content (68.14%), 31,561 are empty JSON objects `{}` (29.68%), and 2,314 are null (2.18%); no malformed JSON was found. Empty objects are valid JSON but provide no descriptor values. `composition_details` is null in 87,433 rows (82.23%), and curve `comments` is null in 103,868 rows (43.77%). These are different forms of missingness and must not be converted to numeric zero or merged into one missingness category.
+
+The tracker also records 9 sample rows and 31 curve rows referencing paper SIDs absent from the papers table, 3,952 curve records with empty x/y arrays, and 45 duplicate paper DOIs across different SIDs. All curve arrays parsed as JSON and had matching x/y lengths in the reproduced profiling; this structural check does not establish that digitized values are scientifically accurate. The deep-cleaning scope is proposed for thermoelectric data and six core properties, but the final transformation and validation outputs are not yet established in this document.
+
+A material blocker has already been observed in `clean_data.py` v1: sample-info keys differing only by whitespace were collapsed into one output column. The tracker records 15,821 affected records and 14,493 records where the two values differed, with one value silently overwritten. Therefore, that prototype output must not be used as model input. The mapping/merge rule for spelling and whitespace variants is still an open project decision (D7); the team must correct the transformation, document the mapping, and re-run checks before approving flattened features.
+
+## 4. AI risk register
+
+| Risk | Evidence and status | Possible impact | Required control before or during modeling |
+|---|---|---|---|
+| Sparse or absent sample descriptors | 29.68% of `sample_info` values are `{}` and 2.18% are null; 68.14% contain JSON content. | A model can learn documentation/measurement practices instead of material behavior; feature availability may vary across subsets. | Keep empty and null states distinguishable; preserve missing values as null; report missingness per flattened feature and subgroup. Do not replace missing descriptors with zero without a justified, feature-specific meaning. |
+| Lossy JSON flattening and inconsistent keys | The v1 prototype collapsed whitespace variants, affecting 15,821 records; 14,493 had conflicting values that were silently overwritten. There are 138 distinct source keys, including spelling and spacing variants. D7 mapping is open. | Features can be corrupted or misclassified, and the same scientific concept can be split across columns. | Do not train on v1 flattened output. Define reviewed canonical mappings and conflict precedence; retain raw JSON; count conflicts; test the corrected flattening on full data and compare representative records before using it. |
+| Missing composition metadata and comments | `composition_details` is 82.23% null; `comments` is 43.77% null. | Text/descriptor analyses may use a biased subset and missingness may correlate with paper, material, or era. | Treat fields as optional and nullable; state whether excluded or used; report inclusion counts and missingness by relevant subgroup. |
+| Publication and selection bias | Data are curated from published literature and digitized figures, not sampled randomly from all materials or experiments. Bias magnitude is not quantified. | Published, studied, or noteworthy materials, properties, and results may be overrepresented; generalization to all materials is unsupported. | Define the target population; profile coverage by paper, year, material family, project, and property where available; describe results as applying to the evaluated dataset unless externally validated. |
+| Digitization uncertainty | Values are extracted from figures using WebPlotDigitizer/StarryDigitizer. The snapshot does not provide per-point uncertainty estimates. | Axis calibration, line thickness, rounding, and figure quality can add error to the values used as model labels or features. | Treat values as digitized estimates; preserve paper, figure, and sample identifiers; validate units and arrays; compare selected curves to source figures when feasible; do not claim measurement precision beyond the source. |
+| Unit and semantic heterogeneity | The tracker reports 170 distinct `prop_y` and 69 distinct `unit_y` labels across curves; temperature and inverse temperature both occur as x-axis concepts. | Mixing properties or incompatible axes/units can make features and targets scientifically invalid. | Restrict models to a clearly defined property/unit scope; document canonical labels and conversions; preserve raw labels; apply domain review before merging variants. |
+| Unresolved relational links and duplicate DOI records | 9 sample rows and 31 curve rows have SIDs absent from `papers`; 45 DOI values are duplicated across different SIDs. | Joins can drop records or attach them ambiguously, changing the modeling population. | Keep unmatched records in a quarantine/review output or exclude them under a logged rule; investigate duplicate DOIs; report counts before and after joins. Do not silently discard them. |
+| Empty curve arrays | 3,952 curve records have empty x and y arrays. Non-empty arrays parsed and had matching lengths in profiling. | Empty curves contain no point-level training observations; retaining them as if they contained values can distort counts or aggregation. | Exclude from point-level modeling or retain only as metadata under a stated rule; report the count. Revalidate parseability, numeric values, and equal lengths in the pipeline. |
+| Correlated observations and leakage | Curves can share a paper, sample, or figure; the tracker defines `figure_id` + `sample_id` as the curve composite key. | Random row-level train/test splits can put related data in both sets and overstate performance. | Split by paper/SID or a stricter paper/sample grouping appropriate to the target. Keep related observations together and document the split unit. |
+| Non-random project/domain coverage | The agreed deep-cleaning scope is a subset: thermoelectric curves and six core properties with temperature as x. | Results from this subset cannot be assumed to apply to battery, magnetic, or other thermoelectric properties. | State the exact scope in the model card/report; do not generalize beyond included properties, units, and source groups without separate evaluation. |
+| Timestamp misuse | `created_at` and `updated_at` are database record timestamps; they are not established experimental measurement dates. | Using them as experiment time can create misleading temporal conclusions or leakage. | Use them for provenance only unless a task establishes their scientific meaning; do not label them measurement dates. |
+| Attribution and license obligations | Figshare record and Dr. Mato's email confirm CC BY 4.0; source-paper citation metadata is present. The README's `XXX License` placeholder is inconsistent with the Figshare license. | Incorrect licensing statements or omitted attribution weaken lawful reuse and reproducibility. | Cite the Figshare DOI and relevant original papers; link CC BY 4.0; identify the group’s modifications; report the README inconsistency rather than copying it. |
+
+## 5. Minimum release gate for model use
+
+Before describing a dataset export as AI-ready or using it for training, the team should:
+
+1. Define the target, prediction unit, population, intended use, and permitted feature set.
+2. Fix the v1 `sample_info` overwrite bug; close D7 with a documented, reviewed key-mapping and conflict-handling rule; preserve the original JSON.
+3. Run the corrected pipeline on the full agreed scope and compare its output against source rows, including conflicting key variants.
+4. Validate primary/composite keys, foreign-key joins, orphan handling, duplicate DOI treatment, JSON parsing, numeric curve arrays, equal x/y lengths, units, and row counts.
+5. Keep missing values and empty arrays distinct; document every exclusion, imputation, normalization, unit conversion, and quarantine with before/after counts.
+6. Use grouped train/test splits by paper or another scientifically justified grouping, and check for leakage across samples/figures.
+7. Report coverage and performance by relevant material, paper, year, and property groups where sample sizes permit; state uncertainty and limits on generalization.
+8. Record the exact source DOI, code/flow version, output version, and license attribution with the model dataset.
+
+Until the flattening defect is corrected and the final outputs pass these checks, refer to them as prototypes or intermediate outputs rather than validated AI-ready data.
+
+## 6. Intended use and limitations
+
+After the release gate is met, the documented, scoped outputs may support exploratory materials-science analysis and baseline model development. They should not be presented as a complete or unbiased census of materials, or as direct ground-truth laboratory measurements. Scientific claims and operational decisions require task-specific validation and, where possible, evaluation against independent data. The project should report unresolved issues and limitations alongside any model results.
