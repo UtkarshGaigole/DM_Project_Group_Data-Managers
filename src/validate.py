@@ -4,11 +4,18 @@ from pathlib import Path
 
 import pandas as pd
 
-from load_data import (
-    get_papers_data,
-    get_samples_data,
-    get_curves_data
-)
+try:
+    from .load_data import (
+        get_papers_data,
+        get_samples_data,
+        get_curves_data
+    )
+except ImportError:
+    from load_data import (
+        get_papers_data,
+        get_samples_data,
+        get_curves_data
+    )
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 INTERIM_DIR = PROJECT_ROOT / "data" / "interim"
