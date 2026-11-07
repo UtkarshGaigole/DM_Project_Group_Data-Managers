@@ -1,0 +1,147 @@
+prop_x,curves,most_common_unit,distinct_units
+Temperature,174775,K,1
+Magnetic field strength (H),11079,A/m,1
+Cycle number,9657,-,1
+Discharge capacity,9020,A*s/kg,1
+Charge capacity,8813,A*s/kg,1
+Inverse temperature,6441,K^(-1),1
+Magnetic field,4819,T,1
+C rate,2729,-,1
+Time,2240,s,1
+Areal capacity,906,A*s/m**2,1
+Carrier concentration,883,m^(-3),1
+Electric field,773,kg*m/A/s**3,1
+Rate,727,mA/g,1
+T,646,K,1
+Voltage,547,V,1
+1000/T,533,K,1
+Magnetic Field,352,A/m,1
+Inversed Temperature,313,1/K,1
+Electrical resistivity,273,ohm*m,1
+wavelength,215,m,1
+Discharge capacity (based on sulfur weight),209,A*s/kg,1
+Charge capacity (based on sulfur weight),202,A*s/kg,1
+Capacity,87,A*s,1
+-,56,-,1
+Electrical conductivity,43,ohm^(-1)*m^(-1),1
+(10^3/T)^(1/4),41,K^(-1/4),1
+T^2,36,K^2,1
+Annealing Temperature,36,K,1
+Temperture Difference,33,K,1
+T^(-1/4),32,K^(-1/2),1
+Temperature (oC),31,-,1
+1/T,26,K^(-1),1
+PRESSURE,25,Pa,1
+Pressure,24,Pa,1
+ratio of intensity,24,-,1
+Charge capacity (based on cathode weight),23,A*s/kg,1
+Discharge capacity (based on cathode weight),23,A*s/kg,1
+"Doping concentration, mol%",22,-,1
+content,19,-,1
+Concentration of Cu,18,-,1
+Growth-pO2,16,kg/s**2/m,1
+T^(1/2),16,K,1
+Nanowire diameter,16,-,1
+Applied Field,16,kg/A/s**2,1
+1/T^(-1/4),16,T^(-1/4),1
+Bi2Te3 nanoparticle fraction (vol %),15,-,1
+WO3,15,-,1
+Doping level,14,-,1
+hall density,13,1/m**3,1
+concentrations,13,-,1
+diameter,13,-,1
+Concentration,12,kg,1
+magnetic field,12,T,1
+log(P(O2)),11,kg/s**2/m,1
+T^(-1),11,K^(-1),1
+Magnetization,11,T,1
+mol %,10,-,1
+Seebeck coefficient,10,V*K^(-1),1
+SWCNTs content (wt%),10,-,1
+1000/T.,10,K^(-1),1
+Sintering-pO2,10,kg/s**2/m,1
+Dopant Concentration,9,mol/m**3,1
+"Sr concentration, x",9,-,1
+N2(Ar+N2),9,-,1
+Nb content,8,-,1
+composition x,8,-,1
+Duration,8,s,1
+annealing time,8,s,1
+Vg,7,V,1
+PEI,7,-,1
+Doping concentration,7,1/m**3,1
+deltaVg,6,V,1
+Electronic thermal conductivity,6,W*m^(-1)*K^(-1),1
+"Gate voltage, Vg",6,V,1
+frequency,6,-,1
+T^(-1/2),6,K^(-1/2),1
+Hall concentration,6,m**3,1
+stress,5,kg/s**2/m,1
+Ca2.7Yb0.3Co4O9,5,K,1
+R of R-DDM-R,5,-,1
+energy,5,-,1
+ wt% F4TCNQ:P3HT,4,-,1
+Log(row),4,ohm*m,1
+La content,4,-,1
+Filler content,4,-,1
+Days,4,-,1
+"Na concentration, x",4,N,1
+CNT volume fraction (%),4,-,1
+SDBS,4,-,1
+ZT,4,-,1
+Thickness,4,m,1
+width,4,-,1
+sample name,4,-,1
+Solid content (mg/mL),4,-,1
+Time (h),4,s,1
+Time Lapse,4,s,1
+BFCZO1 at 20K  Zoomed,3,T,1
+BN content (wt%),3,-,1
+position,3,m,1
+T^2/1000,3,K^2,1
+Time (hour),3,-,1
+distance,3,-,1
+Wt.% SWCNT,3,-,1
+1/3 Octave Band Freqency,3,Hz,1
+GQD (wt%),3,-,1
+Density,3,kg*m**3,1
+GNF content (wt%),3,-,1
+RGO content (wt.%),3,-,1
+amount of Ag,3,-,1
+"Lattice constant, d",3,m,1
+Expanded graphite content (vol),3,-,1
+Proportion of interface layer (%),3,-,1
+Micro diamond content [vol%],3,-,1
+No. of BL,3,-,1
+Filler content (phr),2,-,1
+Frequency,2,Hz,1
+--,2,-,1
+BN content (wt %),2,-,1
+" Sr concentration, x",2,-,1
+substrate temperature,2,K,1
+deposition temperature,2,K,1
+wt% F4TCNQ:P3HT,2,-,1
+Conductivity,2,S/m,1
+thickness,2,m,1
+1/T^(-1/2),1,1/K^(-1/2),1
+ mol% F4TCNQ,1,-,1
+Creep Strain,1,-,1
+Carrier mobility,1,m^2*V^(-1)*s^(-1),1
+DMSO doping percent,1,m,1
+Draw ratio,1,-,1
+N2 flow ratio,1,-,1
+Lattice thermal conductivity,1,W*m^(-1)*K^(-1),1
+I/A,1,-,1
+Carbon fiber loading [vol%],1,-,1
+Spherulite size [um],1,-,1
+Thermal conductivity,1,W*m^(-1)*K^(-1),1
+T^(-1/3),1,K^(-1/3),1
+T^(3/2),1,K^(3/2),1
+Wavenumber,1,m,1
+delta T,1,-,1
+hot-press tenperature,1,K,1
+m,1,-,1
+nm,1,m,1
+mol% F4TCNQ,1,-,1
+thermopower,1,V*K^(-1),1
+μ,1,-,1

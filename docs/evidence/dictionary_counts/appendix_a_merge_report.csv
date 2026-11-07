@@ -1,0 +1,15 @@
+output_column,records_with_variants,values_differ,one_nonempty_rest_empty,two_nonempty_differ
+Coercivity,15821,1412.0,1409.0,3.0
+DataType,75,0.0,0.0,0.0
+DifferentialThermalAnalyzer,26293,21.0,21.0,0.0
+ElectricalMeasurement,31,13.0,0.0,13.0
+GrainSize,2,2.0,2.0,0.0
+MaterialFamily,41,25.0,15.0,10.0
+Measurement temperature,15820,11828.0,11824.0,4.0
+OrganicFabricationProcess,13,13.0,0.0,13.0
+OrganicMaterialFamily,13,0.0,0.0,0.0
+RelativeDensity,14,14.0,14.0,0.0
+Remanence magnetization,14607,658.0,658.0,0.0
+Saturation magnetization,14563,858.0,858.0,0.0
+ThermalMeasurement,33,5.0,5.0,0.0
+magnetic field,2419,214.0,214.0,0.0

@@ -1,0 +1,155 @@
+{
+  "sha256": {
+    "starrydata_papers.csv": "b82ff398b28c15e42aa6ef6de1df9c26f3935a00dd9c76925e9dbbf1a6b4e222",
+    "starrydata_samples.csv": "744b1b496368c0ed24231073ae324a2ef302076801331abb0f9c69dcf9754f55",
+    "starrydata_curves.csv": "411515829de82041809e112a30d55c676567972c80a95965c37feb1b1ef41c96"
+  },
+  "rows": {
+    "papers": 56495,
+    "samples": 106331,
+    "curves": 237313
+  },
+  "sample_info": {
+    "raw_keys": 138,
+    "after_whitespace_normalisation": 128,
+    "after_variant_mapping": 108,
+    "merge_records_with_variants": 89745,
+    "merge_values_differ": 15063,
+    "merge_one_nonempty_rest_empty": 15020,
+    "merge_two_nonempty_differ": 43,
+    "ungrouped_columns": []
+  },
+  "properties": {
+    "distinct_prop_x": 146,
+    "distinct_prop_y": 170,
+    "distinct_unit_x": 38,
+    "distinct_unit_y": 69,
+    "prop_y_with_more_than_one_unit": [
+      "magnetization_per_weight",
+      "Hall mobility",
+      "log(Electrical resistivity)",
+      "logσT"
+    ]
+  },
+  "unit_notations": {
+    "siemens per metre (electrical conductivity)": {
+      "ohm^(-1)*m^(-1)": 22260,
+      "S*m^(-1)": 2137,
+      "S/m": 16
+    },
+    "volt per kelvin (Seebeck coefficient)": {
+      "V*K^(-1)": 39135,
+      "V/K": 99
+    },
+    "per kelvin (inverse temperature)": {
+      "K^(-1)": 550,
+      "1/K": 319
+    }
+  },
+  "tier2": {
+    "thermoelectric_curves": 159593,
+    "thermoelectric_distinct_prop_y": 117,
+    "thermoelectric_distinct_unit_y": 52,
+    "tier2_curves": 136679,
+    "units_per_core_property": {
+      "Seebeck coefficient": {
+        "V*K^(-1)": 36939
+      },
+      "Electrical conductivity": {
+        "ohm^(-1)*m^(-1)": 18839
+      },
+      "Electrical resistivity": {
+        "ohm*m": 18582
+      },
+      "Thermal conductivity": {
+        "W*m^(-1)*K^(-1)": 23564
+      },
+      "Power factor": {
+        "W*m^(-1)*K^(-2)": 18043
+      },
+      "ZT": {
+        "-": 20712
+      }
+    },
+    "core_name_curves_total": 141910,
+    "core_name_curves_excluded_by_prop_x": 5231,
+    "excluded_prop_x_distinct_values": 67,
+    "excluded_prop_x_top10": {
+      "Inverse temperature": 3693,
+      "Carrier concentration": 701,
+      "1000/T": 193,
+      "T": 191,
+      "Electrical conductivity": 43,
+      "Temperature (oC)": 28,
+      "Inversed Temperature": 27,
+      "ratio of intensity": 24,
+      "Doping concentration, mol%": 22,
+      "Annealing Temperature": 22
+    },
+    "excluded_variant_names": 31,
+    "excluded_variant_curves": 11295
+  },
+  "curve_points": {
+    "curve_key_figure_id_sample_id_duplicates": 0,
+    "null_figure_id": 0,
+    "fully_duplicate_rows": 0,
+    "x_y_length_mismatches": 0,
+    "total_points": 4839779,
+    "curves_non_empty": 233361,
+    "curves_empty_arrays": 3952,
+    "curves_single_point": 4561,
+    "median_points_per_curve": 15.0,
+    "max_points_per_curve": 804,
+    "tier2_points": 2337212,
+    "tier2_curves_non_empty": 134539,
+    "tier2_curves_empty": 2140
+  },
+  "timestamps_utc": {
+    "samples.updated_before_created": 0,
+    "curves.updated_before_created": 0,
+    "papers.created_at": {
+      "parse_failures": 0,
+      "min_utc": "2018-01-25 04:56:56",
+      "max_utc": "2026-09-18 01:43:28",
+      "after_snapshot": 0
+    },
+    "samples.created_at": {
+      "parse_failures": 0,
+      "min_utc": "2017-09-01 09:19:39",
+      "max_utc": "2026-09-30 08:25:24",
+      "after_snapshot": 0
+    },
+    "samples.updated_at": {
+      "parse_failures": 0,
+      "min_utc": "2017-09-01 09:19:39",
+      "max_utc": "2026-09-30 08:34:52",
+      "after_snapshot": 0
+    },
+    "curves.created_at": {
+      "parse_failures": 0,
+      "min_utc": "2017-09-01 09:19:39",
+      "max_utc": "2026-09-30 08:33:51",
+      "after_snapshot": 0
+    },
+    "curves.updated_at": {
+      "parse_failures": 0,
+      "min_utc": "2017-09-01 09:19:39",
+      "max_utc": "2026-09-30 08:33:55",
+      "after_snapshot": 0
+    }
+  },
+  "issued": {
+    "precision_counts": {
+      "full": 25192,
+      "year-month": 24570,
+      "year": 6526,
+      "none": 207
+    },
+    "none_because_empty_object": 20,
+    "none_because_empty_string_year": 187,
+    "year_min": 1885,
+    "year_max": 2026,
+    "invalid_month_kept_as_recorded": 1,
+    "invalid_day_kept_as_recorded": 0
+  }
+}

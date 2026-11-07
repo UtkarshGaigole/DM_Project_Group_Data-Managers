@@ -1,0 +1,8 @@
+unit_group,unit_string,curves_in_unit_y,curves_in_unit_x,top_prop_y
+siemens per metre (electrical conductivity),ohm^(-1)*m^(-1),22260,43,"Electrical conductivity (22,260)"
+siemens per metre (electrical conductivity),S*m^(-1),2137,0,"log(Electrical conductivity) (1,989); ln(Electrical conductivity) (148)"
+siemens per metre (electrical conductivity),S/m,16,2,Conductivity (16)
+volt per kelvin (Seebeck coefficient),V*K^(-1),39135,11,"Seebeck coefficient (38,557); thermopower (559); Thermoelectric power (19)"
+volt per kelvin (Seebeck coefficient),V/K,99,0,S (72); Seebeck  coefficient (10); TEP (9)
+per kelvin (inverse temperature),K^(-1),550,6488,Figure of merit Z (501); Figure of merit (40); Figure of merit Zt (4)
+per kelvin (inverse temperature),1/K,319,313,Temperature Coefficient of Resistivity (319)
