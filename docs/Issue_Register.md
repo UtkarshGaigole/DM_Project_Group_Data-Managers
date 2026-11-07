@@ -2,7 +2,11 @@
 
 **Dataset:** `20261001_starrydata2`, Figshare snapshot `10.6084/m9.figshare.34036677.v1` (database snapshot 2026-10-01 02:00:01 JST)  
 **Prepared by:** Group 6 "Data-Managers", SRH University of Applied Sciences Heidelberg  
+<<<<<<< Updated upstream
 **Version:** v2.1, 2026-11-07 (adds residual-risk ratings; corrects #4 and #17; marks Python checks as local runs)  
+=======
+**Version:** v2.2, 2026-11-07 (Python Tier 2 code merged 07 Nov, PR #20; formal Tableau–Python comparison pending; precision labels match the outputs; #20 moved to unresolved)  
+>>>>>>> Stashed changes
 **Row counts of the raw tables:** papers 56,495 · samples 106,331 · curves 237,313
 
 ## How to read this register
@@ -24,7 +28,11 @@ So an issue can be High in severity and Low in residual risk (for example #1, ne
 
 **Eight fields per issue:** problem · table / column · records affected · impact · proposed treatment · applied treatment · rows before / after · validation.
 
+<<<<<<< Updated upstream
 All counts were reproduced from the raw files (`dictionary_appendix_counts.py`, the profiling notebook) and the Tableau Prep flow. Where a check also cites the Python Tier 2 pipeline, it refers to a local run on 07 Nov 2026; that code is not yet in the GitHub repository. Every issue appears once (20 issues).
+=======
+All counts were reproduced from the raw files (`dictionary_appendix_counts.py`, the profiling notebook) and the Tableau Prep flow. Where a check also cites the Python Tier 2 pipeline, that code was merged on 07 Nov (PR #20); the formal Tableau–Python comparison is pending. Every issue appears once (20 issues).
+>>>>>>> Stashed changes
 
 ## Summary
 
@@ -35,7 +43,11 @@ All counts were reproduced from the raw files (`dictionary_appendix_counts.py`, 
 | 3 | Property name variants and unit errors | curves.prop_y, unit_y | 760 curves (same quantity, x = Temperature); 31 names / 11,295 curves incl. related quantities | **High** | Excluded and reported | Medium: no wrong values enter scope, but 760 usable curves are lost and unit errors stay uncorrected |
 | 4 | Curves with empty point arrays | curves.x, curves.y | 3,952 (2,140 in scope) | Medium | Flagged `has_points = FALSE` | Low: flagged, no point rows |
 | 5 | Same DOI on different paper records | papers.DOI | 85 rows share 40 DOIs (45 surplus) | Medium | Reported, not changed | Medium: leakage risk remains unless splits group by DOI |
+<<<<<<< Updated upstream
 | 6 | Orphans: SID not found in papers | samples, curves | 9 samples + 31 curves (28 in scope) | Medium | Flagged `is_orphan`, not dropped | Low: flagged and visible (0.01%) |
+=======
+| 6 | Orphans: SID not found in papers | samples, curves | 9 samples + 31 curves (28 in scope) | Medium | Flagged `is_orphan`, not dropped | Low: flagged and visible (in scope 28 of 136,679, 0.02%; overall 31 of 237,313, 0.01%) |
+>>>>>>> Stashed changes
 | 7 | Publication date has variable precision | papers.issued | 31,303 not full dates | Medium | Split into parts plus precision | Low: precision kept explicit (see #20) |
 | 8 | 170 property names and 69 units | curves | whole table | Medium | Reason for the narrowed scope | Low in scope; unresolved outside the six properties |
 | 9 | `sample_info` often empty | samples.sample_info | 33,875 samples without content | Medium | Kept; completeness stated correctly | Medium: missing descriptors cannot be recovered |
@@ -49,7 +61,11 @@ All counts were reproduced from the raw files (`dictionary_appendix_counts.py`, 
 | 17 | Line breaks inside quoted text | samples.composition_details | 6,586 records | Low | Handled by the text qualifier | Low |
 | 18 | README says "XXX License" | README.md | n/a | Low | Documentation defect | Low |
 | 19 | README file names and columns do not match the data | README.md | n/a | Low | Documentation defect | Low |
+<<<<<<< Updated upstream
 | 20 | One paper has publication month 0 | papers.issued | 1 paper (SID 31709) | Low | Kept as recorded; still to be flagged | Low |
+=======
+| 20 | One paper has publication month 0 | papers.issued | 1 paper (SID 31709) | Low | Unresolved: kept as recorded, reported as a limitation | Low |
+>>>>>>> Stashed changes
 
 ---
 
@@ -120,7 +136,7 @@ All counts were reproduced from the raw files (`dictionary_appendix_counts.py`, 
 - **Problem:** samples and curves reference paper IDs that do not exist in the `papers` table.
 - **Table / column:** `samples.SID`, `curves.SID`
 - **Records affected:** 9 samples and 31 curves, all pointing to 3 SIDs (8534, 8535, 9026). 28 of the 31 curves are in scope.
-- **Impact:** without a paper record these curves cannot be traced to a source or grouped by paper for a leakage-safe split. The affected share is small (0.01%).
+- **Impact:** without a paper record these curves cannot be traced to a source or grouped by paper for a leakage-safe split. The affected share is small: 28 of 136,679 in-scope curves (0.02%); 31 of 237,313 curves overall (0.01%).
 - **Proposed treatment:** keep and flag them, so the problem stays visible and can be reported upstream. Dropping is irreversible.
 - **Applied treatment:** left joins keep every row; an `is_orphan` flag marks the affected curves. Nothing is dropped.
 - **Rows before / after:** samples 106,331 → 106,331 (9 flagged); curves 237,313 → 237,313 (31 flagged); in scope 136,679 → 136,679 (28 flagged).
@@ -133,9 +149,15 @@ All counts were reproduced from the raw files (`dictionary_appendix_counts.py`, 
 - **Records affected:** 31,303 of 56,495 papers are not full dates: year-month 24,570, year only 6,526, no date 207 (20 empty `{}` plus 187 with an empty-string year `[[""]]`). One record (SID 31709) has the invalid month 0.
 - **Impact:** forcing every date into `YYYY-MM-DD` would invent a month and day for more than half of the papers. That distorts any time-based split or time trend a model evaluation relies on.
 - **Proposed treatment:** keep the precision: split into year, month and day and add a precision label.
+<<<<<<< Updated upstream
 - **Applied treatment:** `issued_year`, `issued_month`, `issued_day` and `issued_precision` (`full`, `year-month`, `year`, `none`); missing parts stay null.
 - **Rows before / after:** papers 56,495 → 56,495; precision counts 25,192 full / 24,570 year-month / 6,526 year / 207 none.
 - **Validation:** the same four counts in Tableau and in Python (local run, 07 Nov); no day or month is imputed. The invalid month in SID 31709 is still to be flagged or set to null (see issue 20).
+=======
+- **Applied treatment:** `issued_year`, `issued_month`, `issued_day` and `issued_precision` (`YMD`, `YM`, `Y`, `Unknown`); missing parts stay null.
+- **Rows before / after:** papers 56,495 → 56,495; precision counts 25,192 `YMD` / 24,570 `YM` / 6,526 `Y` / 207 `Unknown`.
+- **Validation:** the same four counts in Tableau and in Python (local run, 07 Nov); no day or month is imputed. The invalid month in SID 31709 is an unresolved issue (see issue 20).
+>>>>>>> Stashed changes
 
 ### 8. 170 property names and 69 units
 
@@ -274,13 +296,13 @@ All counts were reproduced from the raw files (`dictionary_appendix_counts.py`, 
 
 ### 20. One paper has publication month 0
 
-- **Problem:** the paper with SID 31709 has the publication date `{"date_parts":[[2018,0]]}`. Month 0 does not exist. The record is kept as recorded and, because it has two date parts, it is classified as `year-month` even though the month is invalid.
+- **Problem:** the paper with SID 31709 has the publication date `{"date_parts":[[2018,0]]}`. Month 0 does not exist. The record is kept as recorded and, because it has two date parts, it is classified as `YM` even though the month is invalid.
 - **Table / column:** `papers.issued`
 - **Records affected:** 1 paper (SID 31709). All other months are 1 to 12 and no day is invalid.
-- **Impact:** negligible for the model. A single paper would carry a month that cannot be read as a date, and it counts as `year-month` precision when only the year can be trusted.
+- **Impact:** negligible for the model. A single paper would carry a month that cannot be read as a date, and it counts as `YM` precision when only the year can be trusted.
 - **Proposed treatment:** flag the record, and set the month to null so the paper is classified as year-only.
-- **Applied treatment:** not changed yet. The value is kept as recorded and the paper stays in the `year-month` count (24,570).
-- **Rows before / after:** papers 56,495 → 56,495. If the month is set to null: `year-month` 24,570 → 24,569 and `year only` 6,526 → 6,527.
+- **Applied treatment:** none; **unresolved issue.** The value is kept as recorded in both pipelines and the paper stays in the `YM` count (24,570). Reported as a limitation and to the maintainers.
+- **Rows before / after:** papers 56,495 → 56,495. If the proposed fix were applied: `YM` 24,570 → 24,569 and `Y` 6,526 → 6,527.
 - **Validation:** found by checking every month and day in the date parts against the calendar (1 invalid month, 0 invalid days).
 - **Checked, not an error:** 44 papers have a publication year before 1950 (earliest 1885). They were checked and are genuine historical papers, so they are kept.
 
