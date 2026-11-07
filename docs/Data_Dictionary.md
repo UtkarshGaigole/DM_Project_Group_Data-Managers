@@ -4,13 +4,13 @@
 **Source DOI:** [10.6084/m9.figshare.34036677.v1](https://doi.org/10.6084/m9.figshare.34036677.v1)  
 **Source files:** `starrydata_papers.csv`, `starrydata_samples.csv`, `starrydata_curves.csv`  
 **Prepared by:** Data-Managers, SRH University of Applied Sciences Heidelberg  
-**Version:** v0.2, 2026-11-07
+**Version:** v0.3, 2026-11-07 (adds output columns; `n_points` null rule; curve key aligned; normalization marked as proposed)
 
 ## Scope and assumptions
 
 Starrydata is a database of numerical property data digitized from plots in published papers. The upstream README describes thermoelectric, battery, and magnetic materials, but the snapshot is broader: paper-level `project_names` contain 14 distinct project labels (ThermoelectricMaterials, MagneticMaterials, DielectricMaterials, BatteryMaterials, LowThermalConductivityMaterials, PiezoelectricMaterials, GeneralDB, Resistor, CondensedMatter, HighThermalConductivityMaterials, Hypermaterial, OrganicThermoelectricMaterials, SolidStateBatteryMaterials, AirBatteryMaterials). Values were digitized from figures with WebPlotDigitizer and StarryDigitizer.
 
-The data product is documented as three related tables (`papers`, `samples`, `curves`) to preserve the source relationships. The `sample_info` JSON in `samples` is retained as `sample_info_raw` for provenance and flattened into nullable descriptor columns. A flattened descriptor column contains the JSON `category` value; if no category is present, the source string or `extracted` value is used. The original JSON preserves comments and any values not represented in the flattened columns.
+The data product is documented as three related tables (`papers`, `samples`, `curves`) to preserve the source relationships. The `sample_info` JSON in `samples` is retained as `sample_info_raw` for provenance. Flattening it into nullable descriptor columns is **proposed, not applied**: the key mapping is open decision D7, and no current output (including Tier 2) contains flattened descriptor columns. Under the proposal, a flattened descriptor column would contain the JSON `category` value; if no category is present, the source string or `extracted` value would be used. The original JSON preserves comments and any values not represented in flattened columns.
 
 
 ## Table relationships
@@ -19,13 +19,14 @@ The data product is documented as three related tables (`papers`, `samples`, `cu
 |---|---|---|---|
 | `papers` | One paper record | `SID` | `SID` is referenced by `samples` and `curves`. |
 | `samples` | One material sample record | (`SID`, `sample_id`) | `SID` links to `papers`; the composite key relates samples to curves. |
-| `curves` | One digitized curve | (`SID`, `figure_id`, `sample_id`) | `SID` links to `papers`; (`SID`, `sample_id`) links to `samples`. `figure_id` groups curves from the same figure. |
+| `curves` | One digitized curve | `curve_key` = (`figure_id`, `sample_id`) | `SID` links to `papers`; (`SID`, `sample_id`) links to `samples`. `figure_id` groups curves from the same figure. |
+| `curve_points` (output) | One digitized point of one curve | (`figure_id`, `sample_id`, `point_index`) | (`figure_id`, `sample_id`) links to `curves.curve_key`. |
 
 The profiling notebook found no duplicate or missing `SID` values in `papers`, and no duplicate or missing `sample_id` values in `samples` for this snapshot. Use (`SID`, `sample_id`) for the sample-to-curve relationship; this avoids relying on `sample_id` alone across other snapshots.
 
 **Observed in the raw files (this snapshot):**
  
-- (`figure_id`, `sample_id`) is unique across all 237,313 curve rows (0 duplicates, 0 null `figure_id`, 0 fully duplicate rows), so it is a valid `curve_key`. Adding `SID` changes nothing: each `figure_id` and each `sample_id` belongs to exactly one `SID`. No single column is unique.
+- (`figure_id`, `sample_id`) is unique across all 237,313 curve rows (0 duplicates, 0 null `figure_id`, 0 fully duplicate rows), so it is the agreed `curve_key` used in the pipeline contract. Adding `SID` changes nothing: each `figure_id` and each `sample_id` belongs to exactly one `SID`. No single column is unique.
 - `figure_id` identifies one plot: each (`SID`, `figure_id`) has exactly one (`prop_x`, `prop_y`) pair. Median 3 curves per figure, maximum 52.
 - Every curve's (`SID`, `sample_id`) pair exists in `samples` (0 unmatched), and `DOI` agrees between `curves`, `samples` and `papers` wherever they join (0 mismatches).
 - `papers.DOI` is **not** unique: 85 rows share 40 DOIs (45 surplus rows). Join on `SID`, never on `DOI`.
@@ -38,7 +39,7 @@ The profiling notebook found no duplicate or missing `SID` values in `papers`, a
 | `SID` | Integer identifier | Primary key - Starrydata identifier for a paper. |
 | `DOI` | String | Digital Object Identifier of the source paper, when supplied. |
 | `URL` | URL string | URL associated with the paper DOI. |
-| `issued` | JSON object stored as string  | Publication date as `{"date_parts":[[year, month, day]]}`. The inner list has 3 elements for 25,192 rows, 2 (year-month) for 24,570, 1 (year only) for 6,713, and the object is empty (`{}`) for 20 rows. Parse to an ISO 8601 date (or partial date) in the processed output if required. |
+| `issued` | JSON object stored as string  | Publication date as `{"date_parts":[[year, month, day]]}`. The inner list has 3 elements for 25,192 rows, 2 (year-month) for 24,570, and 1 for 6,713 (6,526 with a year, 187 with an empty-string year); the object is empty (`{}`) for 20 rows. The processed output splits it into `issued_year`, `issued_month`, `issued_day` and `issued_precision` (see Output columns). |
 | `author` | JSON array stored as string| Author records; each contain given name, family name, or affiliation data. |
 | `title` | String | Title of the source publication. |
 | `container_title` | String | Full journal, book, or other containing-work title. |
@@ -49,7 +50,7 @@ The profiling notebook found no duplicate or missing `SID` values in `papers`, a
 | `ISSN` | String | One or more comma-separated International Standard Serial Numbers (for example 0001-4842,1520-4898), if supplied. |
 | `publisher` | String | Publisher name. |
 | `project_names` | JSON array | Starrydata project labels associated with the paper. |
-| `created_at` | Timestamp string | Time the paper record was created in Starrydata; source timestamp includes a timezone. |
+| `created_at` | Timestamp string | Time the paper record was created in Starrydata; JavaScript date string in JST (+0900). The processed output adds `created_at_utc` (see Output columns). |
 
 ## `samples` Table
 
@@ -76,9 +77,9 @@ In the raw data every non-missing `sample_info` is a JSON object (72,456 populat
 
 Many descriptor values are empty strings even when the key is present, so a key being present does not mean a value was recorded; Appendix A lists both counts.
 
-### Source-key normalization applied to flattened names
+### Source-key normalization proposed for flattened names (D7, not applied)
 
-Before the variants below are applied, all keys are trimmed of leading/trailing whitespace (spaces and tabs) and repeated internal whitespace is collapsed. The following obvious variations are then consolidated into one output column; original spellings are preserved in `sample_info_raw`:
+This mapping is a proposal under open decision D7. It is not applied in any current output. Under the proposal, all keys would first be trimmed of leading/trailing whitespace (spaces and tabs) and repeated internal whitespace collapsed. The following obvious variations would then be consolidated into one output column, keeping the non-empty value and logging conflicts (43 genuine conflicts in this snapshot, listed in `sample_info_merge_conflicts.csv`); original spellings stay in `sample_info_raw`:
 
 | Output column | Source-key variants consolidated |
 |---|---|
@@ -99,7 +100,7 @@ Before the variants below are applied, all keys are trimmed of leading/trailing 
 | `magnetic field` | ` magnetic field` (leading space). |
 | `Maximum power` | `Maximum power ` (trailing space). |
 
-Kept as separate columns (not merged): laser flash and different thermal analyzer, LaserFlash and DifferentialThermalAnalyzer (similar names but distinct source keys), and Sintering temperature (dielectric project) versus sintering temperature (hypermaterial project), which differ only by case but come from different projects. Output column names reproduce the source spelling after trimming, so they mix CamelCase, spaces and special characters (/, |, parentheses); rename to a consistent style such as snake_case if the columns are loaded into a SQL database.
+Proposed to stay separate (not merged): laser flash and different thermal analyzer, LaserFlash and DifferentialThermalAnalyzer (similar names but distinct source keys), and Sintering temperature (dielectric project) versus sintering temperature (hypermaterial project), which differ only by case but come from different projects. Proposed output column names reproduce the source spelling after trimming, so they mix CamelCase, spaces and special characters (/, |, parentheses); rename to a consistent style such as snake_case if the columns are loaded into a SQL database.
 
 
 ## `curves` Table
@@ -125,17 +126,51 @@ Kept as separate columns (not merged): laser flash and different thermal analyze
 
 ### Flags added in the Tableau and Python Tier 2 outputs
  
-Orphan records are **flagged, not dropped**: left joins keep every curve. The Tier 2 outputs (`tier2_curves.csv`, `tier2_points.csv`. The full 34-column list is in the Tableau output header, not in the tracker, so only the flags are specified here.
+Orphan records are **flagged, not dropped**: left joins keep every curve. The flags below appear in the Tier 2 outputs (`tier2_curves.csv`, `tier2_points.csv`). The other added output columns are specified in the section *Output columns added by the pipeline* below.
  
 | Field | Type | Definition | Unit | Constraints | Missing value means | Source column | Transformation (cleaning-log step) |
 |---|---|---|---|---|---|---|---|
 | `is_orphan` | Boolean | `TRUE` when the curve's `SID` does not exist in `papers` (the curve cannot be linked to its paper). | n/a | **28** `TRUE` among the 136,679 Tier 2 curves (31 across all 237,313 curves). Must be computed from the join, not hard-coded. | Not expected. | `curves.SID` joined to `papers.SID` | Left join plus a null test on the paper side.  |
-| `n_points` | Integer | Number of points in the curve's `x`/`y` arrays. | Count | 0 for empty-array curves. | Not expected. | `curves.x` | Count of matching `curve_points` rows (Python output).  |
-| `has_points` | Boolean | `TRUE` when the curve has at least one point. | n/a | **2,140** `FALSE` among Tier 2 curves (these are empty arrays; 134,539 are `TRUE`). | Not expected. | `curve_points` joined on `curve_key` | Derived from `n_points`.  |
+| `n_points` | Integer (nullable) | Number of points in the curve's `x`/`y` arrays. | Count | ≥ 1 when present. **Null, not 0**, for the 2,140 Tier 2 curves with empty arrays, because no `curve_points` rows match in the join. Both pipelines must write null so that the Tableau/Python null-count comparison agrees. | The curve has empty `x`/`y` arrays (no points). | `curves.x` | Count of matching `curve_points` rows on `curve_key`; the left join leaves null where nothing matches.  |
+| `has_points` | Boolean | `TRUE` when the curve has at least one point. | n/a | **2,140** `FALSE` among Tier 2 curves (these are empty arrays; 134,539 are `TRUE`). | Not expected. | `curve_points` joined on `curve_key` | `TRUE` when `n_points` is not null, else `FALSE`.  |
  
 The 28 Tier 2 orphan curves were re-counted from the raw files and match the tracker.
  
 All other `curves` columns keep the definitions given in the `curves` table above.
+
+## Output columns added by the pipeline
+
+These columns are created by the Tableau Prep flow and the Python pipeline; the source columns are kept alongside them. The complete Tier 2 column list (34 columns) is defined in the Python Tier 2 output specification (Aditya Pawar); this section specifies every column there that does not exist in the raw files.
+
+### Timestamp columns (`papers`, `samples`, `curves`)
+
+| Field | Type | Definition | Unit | Constraints | Missing value means | Source column | Transformation (cleaning-log step) |
+|---|---|---|---|---|---|---|---|
+| `created_at_utc` | Timestamp (UTC) | Time the record was created in Starrydata, converted to UTC. Present in `papers`, `samples` and `curves`. | Date-time, UTC | 0 parse failures; all values before the snapshot time (2026-09-30 17:00:01 UTC). Across all five timestamp columns the range is 2017-09-01 09:19:39 to 2026-09-30 08:34:52 UTC. | Not expected (0 nulls). | `created_at` | JavaScript date string parsed; +0900 (JST) offset converted to UTC (issue register #11). |
+| `updated_at_utc` | Timestamp (UTC) | Time the record was last updated, converted to UTC. Present in `samples` and `curves` (`papers` has no `updated_at`). | Date-time, UTC | ≥ `created_at_utc` for every record (no record was updated before it was created). | Not expected (0 nulls). | `updated_at` | As for `created_at_utc` (issue register #11). |
+
+### Publication date columns (`papers`)
+
+| Field | Type | Definition | Unit | Constraints | Missing value means | Source column | Transformation (cleaning-log step) |
+|---|---|---|---|---|---|---|---|
+| `issued_year` | Integer (nullable) | Publication year. | Year | Earliest 1885 (44 papers before 1950, checked and genuine). | No usable date (207 papers: 20 `{}`, 187 empty-string year). | `issued` | First element of `date_parts` (issue register #7). |
+| `issued_month` | Integer (nullable) | Publication month. | Month (1–12) | 1–12, except SID 31709, which carries the invalid month 0 as recorded (issue register #20). | The source gives only a year, or no date. Never imputed. | `issued` | Second element of `date_parts`, if present. |
+| `issued_day` | Integer (nullable) | Publication day. | Day (1–31) | Valid calendar day (0 invalid days found). | The source gives no day. Never imputed. | `issued` | Third element of `date_parts`, if present. |
+| `issued_precision` | String (category) | How precise the source date is. | n/a | One of `full` (25,192), `year-month` (24,570), `year` (6,526), `none` (207). | Not expected. | `issued` | Derived from the number of non-empty date parts. |
+
+### `curve_points` (Python output, read by Tableau Prep) and `tier2_points`
+
+`curve_points.csv` holds one row per digitized point: 4,839,779 rows from the 233,361 curves that have points. `tier2_points.csv` is its Tier 2 subset (2,337,212 rows from 134,539 curves) and additionally carries `prop_y` and `unit_y` from the joined curve.
+
+| Field | Type | Definition | Unit | Constraints | Missing value means | Source column | Transformation (cleaning-log step) |
+|---|---|---|---|---|---|---|---|
+| `figure_id` | Integer | Figure identifier of the curve the point belongs to; part of `curve_key`. | n/a | Every (`figure_id`, `sample_id`) exists in raw `curves`. | Not expected. | `curves.figure_id` | Copied when the arrays are unpacked (issue register #2). |
+| `sample_id` | Integer | Sample identifier of the curve; part of `curve_key`. | n/a | As above. | Not expected. | `curves.sample_id` | Copied when the arrays are unpacked. |
+| `point_index` | Integer | Position of the point within the source `x`/`y` arrays; preserves the digitized order. | n/a | (`figure_id`, `sample_id`, `point_index`) is unique. Index base (0 or 1) as defined in the Python output specification. | Not expected. | Array position in `curves.x` / `curves.y` | Generated during unpacking. |
+| `x_value` | Float | Digitized x-axis value of the point. | The curve's `unit_x`; K for every Tier 2 point. | Numeric; row count equals the sum of array lengths. | Not expected. | `curves.x` | JSON array unpacked, one element per row. |
+| `y_value` | Float | Digitized y-axis value at the same position as `x_value`. | The curve's `unit_y`. | Numeric; `x` and `y` arrays have equal length in every source row. | Not expected. | `curves.y` | JSON array unpacked, one element per row. |
+| `prop_y` (`tier2_points` only) | String | y-axis property of the point's curve. | n/a | One of the six exact core names (Seebeck coefficient, Electrical conductivity, Electrical resistivity, Thermal conductivity, Power factor, ZT). | Not expected. | `curves.prop_y` | Joined from `curves` on `curve_key`; Tier 2 filter (issue register #1, #3, #8). |
+| `unit_y` (`tier2_points` only) | String | Unit of `y_value`. | n/a | Exactly one unit string per core property in scope (for example `V*K^(-1)` for Seebeck coefficient). | Not expected. | `curves.unit_y` | Joined from `curves` on `curve_key`. |
 
 
 
@@ -148,16 +183,16 @@ The following results are from `01_data_profiling.ipynb` and describe the raw ta
 | `papers` | 56,495 rows; 15 columns; `SID` is unique and has no nulls. | `SID` is suitable as the paper-table primary key in this snapshot. |
 | `samples` | 106,331 rows; 9 columns; `sample_id` is unique and has no nulls. | Preserve `SID` with `sample_id` when linking samples to curves. |
 | `curves` | 237,313 rows; 16 columns. | One row represents one digitized curve. |
-| Line breaks inside `samples.composition_details` | 6,585 of the 106,331 sample records contain line breaks inside the quoted `composition_details` text (145,606 physical lines in the file); no other column in any of the three files does . | Quoted text qualifiers must be honoured by every reader. Parsed correctly by pandas and Tableau Prep. Corrects the 06 Nov statement of "0 line breaks inside fields". |
+| Line breaks inside `samples.composition_details` | 6,586 of the 106,331 sample records contain line breaks (all Windows CRLF) inside the quoted `composition_details` text (145,606 physical lines in the file); no other column in any of the three files does. | Quoted text qualifiers must be honoured by every reader. Parsed correctly by pandas and Tableau Prep. Corrects the 06 Nov statement of "0 line breaks inside fields". |
 | Row counts in Tableau Prep | Each CSV ends with an extra blank line (`\n\n`). pandas skips it; Tableau Prep reads it as one all-empty row and shows 56,496 / 106,332 / 237,314 rows until it is filtered (tracker O27). | The counts above are pandas counts. Log the difference wherever the two tools are compared. |
-| `samples.sample_info` | 72,456 valid JSON objects (68.14%); 31,561 empty objects (29.68%); 2,314 missing values (2.18%); no malformed JSON was found. | Flatten safely; use null for unavailable attributes and retain the sample rows. Effective completeness is 68.14%, not 97.82%, because `{}` carries no information. |
+| `samples.sample_info` | 72,456 valid JSON objects (68.14%); 31,561 empty objects (29.68%); 2,314 missing values (2.18%); no malformed JSON was found. | If flattened (D7), use null for unavailable attributes and retain the sample rows. Effective completeness is 68.14%, not 97.82%, because `{}` carries no information. |
 | `samples.composition_details` | 87,433 missing (82.23%). | Keep the field nullable; do not drop samples solely because this optional description is missing. |
 | `curves.comments` | 103,868 missing (43.77%). A further 87,594 rows hold the placeholder `"{}"` (an empty JSON object). | Treat both as "no comment": 191,462 rows (80.68%) carry no real comment text. Keep the field nullable; do not drop curve measurements solely because comments are absent. |
 | Referential integrity: `samples` → `papers` | 9 orphan sample rows referencing 3 absent SIDs: `8534`, `8535`, `9026`. | Flag or quarantine these rows before an inner join; document any exclusion. |
 | Referential integrity: `curves` → `papers` | 31 orphan curve rows referencing the same 3 absent SIDs. | Flag or quarantine these rows before an inner join; document any exclusion. |
 | `curves.x`, `curves.y` | **Verified:** all 237,313 `x` and `y` cells parse as JSON arrays of numbers (0 failures, no nulls or strings), and `x` and `y` have equal length in every row (0 mismatches). 3,952 curves (1.67%) have empty arrays; 4,561 have a single point; the median curve has 15 points and the maximum is 804. | Safe to parse with `json.loads`. Empty-array curves yield no points and are flagged; single-point curves can be filtered if a model needs at least two points. |
 | `papers.DOI` | 0 missing; 85 rows share 40 duplicated DOIs. | Not a key; use `SID`. |
-| `papers.issued` | 207 papers have no usable date (20 `{}` plus 187 empty-string years); 6,526 are year-only, 24,570 year-month (one of them with the invalid month 0), 25,192 full. Corrects the earlier 6,713 year-only figure (tracker O17). | Keep precision explici; do not force a full date. |
+| `papers.issued` | 207 papers have no usable date (20 `{}` plus 187 empty-string years); 6,526 are year-only, 24,570 year-month (one of them with the invalid month 0), 25,192 full. Corrects the earlier 6,713 year-only figure (tracker O17). | Keep precision explicit; do not force a full date. |
  
 Other missingness reported by the notebook:
  
@@ -177,9 +212,9 @@ Other missingness reported by the notebook:
  
 All other columns have no missing values. The notebook's key and referential checks report zero missing `SID` values in child tables.
 
-## Appendix A: Flattened `sample_info` descriptor columns
+## Appendix A: Proposed flattened `sample_info` descriptor columns (D7)
 
-The raw `sample_info` objects contain 138 distinct descriptor keys; after trimming and the normalization above they become 108 output columns. All are nullable. "Samples with key" counts samples whose `sample_info` contains the descriptor; "Samples with a value" counts those where the flattened value (category, else extracted text or string) is non-empty. Groups are assigned by the project label of the papers where the descriptor is populated. Descriptor meanings follow the column names, and the JSON `category` holds the selected value and `comment` holds free text.
+The raw `sample_info` objects contain 138 distinct descriptor keys; after trimming and the proposed normalization above (D7, not yet applied) they would become 108 output columns. All are nullable. "Samples with key" counts samples whose `sample_info` contains the descriptor; "Samples with a value" counts those where the flattened value (category, else extracted text or string) is non-empty. Groups are assigned by the project label of the papers where the descriptor is populated. Descriptor meanings follow the column names, and the JSON `category` holds the selected value and `comment` holds free text.
 
 #### General and thermoelectric sample descriptors
 
@@ -405,9 +440,7 @@ Four `prop_y` values carry more than one unit (`Hall mobility`, `log(Electrical 
 | ZT | `Figure of merit Z 1000` | 1 | `K^(-1)` | As above, with a condition in the name |
  
 No name variants were found for `Power factor`.
- 
-No name variants were found for `Power factor`.
-Four `prop_y` values carry more than one unit (`Hall mobility`, `log(Electrical resistivity)`, `logσT`, `magnetization_per_weight`), so check `unit_y` per row.
+
 **x-axis variants.** 141,910 thermoelectric curves carry one of the six exact core names; 136,679 are kept in Tier 2 because their `prop_x` is `Temperature`, and **5,231 are excluded by the x-axis rule**: `Inverse temperature` (3,693), `Carrier concentration` (701), `1000/T` (193), `T` (191, a candidate synonym of `Temperature`), `Electrical conductivity` (43), and 62 further `prop_x` names on 410 curves.
 
 ## Reproducibility
@@ -435,7 +468,6 @@ python dictionary_appendix_counts.py --data-dir data/raw --out-dir docs/evidence
 - Local source files used: `README(2).md`, `db_snapshot(1).txt`, and the three CSV files.
 - Y. Katsura, M. Kumagai, T. Mato, et al., "Starrydata: from published plots to shared materials data", *Science and Technology of Advanced Materials: Methods* 5(1), 2506976 (2025). <https://doi.org/10.1080/27660400.2025.2506976>
 - Original publications: the DOIs in `starrydata_papers.csv` (the `DOI` column is preserved in all outputs).
-- Starrydata dataset documentation and field descriptions: <https://starrydata.github.io/hp/en/manual/download/>
 - Licence: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). 
 - Canonical file names: `starrydata_papers.csv`, `starrydata_samples.csv`, `starrydata_curves.csv`, `README.md`, `db_snapshot.txt`, `01_data_profiling.ipynb`, `dictionary_appendix_counts.py`.
 
