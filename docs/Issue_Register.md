@@ -19,7 +19,7 @@
 
 **Eight fields per issue:** problem · table / column · records affected · impact · proposed treatment · applied treatment · rows before / after · validation.
 
-All counts were reproduced from the raw files (`dictionary_appendix_counts.py`, the profiling notebook and the Tableau and Python pipelines). Every issue appears once.
+All counts were reproduced from the raw files (`dictionary_appendix_counts.py`, the profiling notebook and the Tableau and Python pipelines). Every issue appears once (20 issues).
 
 ## Summary
 
@@ -27,14 +27,14 @@ All counts were reproduced from the raw files (`dictionary_appendix_counts.py`, 
 |---|---|---|---|---|---|
 | 1 | Mixed x-axis: temperature and inverse temperature | curves.prop_x | 5,231 curves with core property names | **High** | Scope filter x = Temperature |
 | 2 | Curve points stored as arrays in one cell | curves.x, curves.y | 237,313 curves | **High** | Unpacked to one row per point |
-| 3 | Property name variants and unit errors | curves.prop_y, unit_y | ~760 curves | **High** | Excluded and reported |
+| 3 | Property name variants and unit errors | curves.prop_y, unit_y | 760 curves (same quantity, x = Temperature); 31 names / 11,295 curves incl. related quantities | **High** | Excluded and reported |
 | 4 | Curves with empty point arrays | curves.x, curves.y | 3,952 (2,140 in scope) | Medium | Flagged `has_points = FALSE` |
 | 5 | Same DOI on different paper records | papers.DOI | 85 rows share 40 DOIs (45 surplus) | Medium | Reported, not changed |
 | 6 | Orphans: SID not found in papers | samples, curves | 9 samples + 31 curves (28 in scope) | Medium | Flagged `is_orphan`, not dropped |
 | 7 | Publication date has variable precision | papers.issued | 31,303 not full dates | Medium | Split into parts plus precision |
 | 8 | 170 property names and 69 units | curves | whole table | Medium | Reason for the narrowed scope |
 | 9 | `sample_info` often empty | samples.sample_info | 33,875 samples without content | Medium | Kept; completeness stated correctly |
-| 10 | Flattening bug in our own pipeline | samples.sample_info | 22,298 values in 15,786 records | Medium | Fix pending; Tier 2 keeps raw |
+| 10 | Flattening bug in our own pipeline | samples.sample_info | 22,298 values in 15,786 records | Medium | Fix pending and tested safe (43 conflicts to review); Tier 2 keeps raw |
 | 11 | Timestamps stored as JavaScript text | created_at / updated_at | 5 columns, all rows | Low | Parsed to UTC |
 | 12 | `log(Electrical conductivity)` labelled with a linear unit | curves.unit_y | 1,689 | Low | Out of scope; reported |
 | 13 | `sample_info` keys with spelling and space variants | samples.sample_info | 138 keys | Low | Merging mapping proposed |
@@ -44,6 +44,7 @@ All counts were reproduced from the raw files (`dictionary_appendix_counts.py`, 
 | 17 | Line breaks inside quoted text | samples.composition_details | 6,585 records | Low | Handled by the text qualifier |
 | 18 | README says "XXX License" | README.md | n/a | Low | Documentation defect |
 | 19 | README file names and columns do not match the data | README.md | n/a | Low | Documentation defect |
+| 20 | One paper has publication month 0 | papers.issued | 1 paper (SID 31709) | Low | Kept as recorded; still to be flagged |
 
 ---
 
@@ -73,13 +74,16 @@ All counts were reproduced from the raw files (`dictionary_appendix_counts.py`, 
 
 ### 3. Property name variants and unit errors
 
-- **Problem:** the same quantity appears under several names, and some units are wrong. Seebeck coefficient is also named `thermopower` (489 curves) and `S` (70), and its unit is written both as `V*K^(-1)` and `V/K`. A further 47 `Thermopower` curves carry the unit `kg*m**2/A/s**3`, which is the volt, not V/K, so that label is a unit error. Other errors: `Resistivity` in ohm·m⁻¹ (14 curves, should be ohm·m), `conductivity` without a unit (2 curves), and `Figure of merit Zt` in K⁻¹ (4 curves; that unit belongs to Z, not ZT). Also `total thermal conductivity` (134 curves) is a name variant.
+- **Problem:** the same quantity appears under several names or notations, and some units are wrong. Seebeck coefficient is also named `thermopower` (489 curves) and `S` (70), and its unit is written both as `V*K^(-1)` and `V/K`. A further 47 `Thermopower` curves carry the unit `kg*m**2/A/s**3`, which is the volt, not V/K, so that label is a unit error. Other errors: `Resistivity` in ohm·m⁻¹ (14 curves, should be ohm·m), `conductivity` without a unit (2 curves), and `Figure of merit Zt` in K⁻¹ (4 curves; that unit belongs to Z, not ZT). Also `total thermal conductivity` (134 curves) is a name variant.
+- **Two counts, two definitions.** The register and the data dictionary give different numbers for "variants" because they measure different things:
+  - **About 760 curves** (exactly 760): the **same quantity** under another name or notation, or with a wrong unit, restricted to **thermoelectric curves with temperature on the x-axis**. These are the real data-quality problems.
+  - **31 names / 11,295 curves** (data dictionary, Appendix B): the same group **plus related but different quantities**, counted over **all x-axes**. The related quantities are log and ln transforms, the lattice, electronic and other components of the thermal conductivity, products such as conductivity times temperature, and the figure of merit Z (which is not ZT). Those are out of scope by definition, **not errors**. Over all x-axes the same-quantity group is 12 names / 861 curves and the related group is 19 names / 10,434 curves.
 - **Table / column:** `curves.prop_y`, `curves.unit_y`
-- **Records affected:** about 760 thermoelectric curves with temperature on the x-axis (606 of them Seebeck synonyms).
+- **Records affected:** 760 thermoelectric curves with temperature on the x-axis (same-quantity definition above; 606 of them Seebeck synonyms). The wider list of 31 names / 11,295 curves is not an error count.
 - **Impact:** curves under a variant name are silently left out of the target property, which loses data. A wrong unit would put values of a different magnitude or quantity into the same column, which corrupts a model.
 - **Proposed treatment:** merge the unambiguous Seebeck synonyms after unit conversion and fix or flag the wrong units. This needs per-variant judgement.
-- **Applied treatment:** not merged. The six property names are matched exactly; the variants are excluded and reported as a finding and a limitation. The full list of 31 variant names (11,295 curves over all x-axes) is in the data dictionary.
-- **Rows before / after:** 136,679 in-scope curves; no rows changed. About 760 further curves are knowingly left out.
+- **Applied treatment:** not merged. The six property names are matched exactly; the variants are excluded and reported as a finding and a limitation. The full list, split into same-quantity and related-quantity names (31 names, 11,295 curves over all x-axes), is in the data dictionary.
+- **Rows before / after:** 136,679 in-scope curves; no rows changed. The 760 same-quantity curves are knowingly left out.
 - **Validation:** each of the six exact names uses exactly one unit string in scope (for example `V*K^(-1)` for Seebeck, 36,939 curves); the variant counts were re-counted from the raw file and match.
 
 ## Medium severity
@@ -126,7 +130,7 @@ All counts were reproduced from the raw files (`dictionary_appendix_counts.py`, 
 - **Proposed treatment:** keep the precision: split into year, month and day and add a precision label.
 - **Applied treatment:** `issued_year`, `issued_month`, `issued_day` and `issued_precision` (`full`, `year-month`, `year`, `none`); missing parts stay null.
 - **Rows before / after:** papers 56,495 → 56,495; precision counts 25,192 full / 24,570 year-month / 6,526 year / 207 none.
-- **Validation:** the same four counts in Tableau and Python; no day or month is imputed. The invalid month in SID 31709 is still to be flagged or set to null.
+- **Validation:** the same four counts in Tableau and Python; no day or month is imputed. The invalid month in SID 31709 is still to be flagged or set to null (see issue 20).
 
 ### 8. 170 property names and 69 units
 
@@ -155,11 +159,12 @@ All counts were reproduced from the raw files (`dictionary_appendix_counts.py`, 
 - **Problem:** when `sample_info` was flattened into columns, keys that differ only by spelling or spaces (for example `Measurement temperature` and ` Measurement temperature`) were written into the same column and one value silently overwrote the other. Example: `room` was replaced by an empty value.
 - **Table / column:** `samples.sample_info`
 - **Records affected:** 22,298 values in 15,786 records (review of the current pipeline code).
+- **Expected effect of the fix (tested with our counting script):** with the variant mapping and the rule "keep the non-empty value", 15,063 (record, column) pairs have variants that differ. **15,020 of them are a value against an empty one, so nothing is lost.** Only **43 are genuine conflicts** with two different non-empty values (26 of them from one paper, SID 61072). The 43 are listed in `sample_info_merge_conflicts.csv` for review.
 - **Impact:** recorded values are lost without a warning. Any model that uses the flattened descriptors would train on incomplete features. The Tier 2 output does not use the flattened columns, so the six-property model is not affected today.
-- **Proposed treatment:** map the variants to one column, keep the non-empty value, and log every case where two different non-empty values exist (43 such conflicts under the proposed mapping).
+- **Proposed treatment:** map the variants to one column, keep the non-empty value, and log every case where two different non-empty values exist. The test above shows this rule is safe: it keeps every recorded value except in the 43 conflicts, which are logged and can be reviewed by hand.
 - **Applied treatment:** fix pending. Until then the Tier 2 output keeps `sample_info` as raw JSON and does not flatten it.
 - **Rows before / after:** samples 106,331 → 106,331; overwritten values 22,298 today, target 0 after the fix.
-- **Validation:** after the fix, a conflict log and zero silent overwrites are required as evidence.
+- **Validation:** the mapping and rule were run on the full table: 15,063 differing pairs = 15,020 value-against-empty + 43 conflicts (listed in the conflict file). After the pipeline fix, the same conflict log and zero silent overwrites are required as evidence.
 
 ## Low severity
 
@@ -262,6 +267,18 @@ All counts were reproduced from the raw files (`dictionary_appendix_counts.py`, 
 - **Rows before / after:** not applicable.
 - **Validation:** README columns compared one by one with the file headers.
 
+### 20. One paper has publication month 0
+
+- **Problem:** the paper with SID 31709 has the publication date `{"date_parts":[[2018,0]]}`. Month 0 does not exist. The record is kept as recorded and, because it has two date parts, it is classified as `year-month` even though the month is invalid.
+- **Table / column:** `papers.issued`
+- **Records affected:** 1 paper (SID 31709). All other months are 1 to 12 and no day is invalid.
+- **Impact:** negligible for the model. A single paper would carry a month that cannot be read as a date, and it counts as `year-month` precision when only the year can be trusted.
+- **Proposed treatment:** flag the record, and set the month to null so the paper is classified as year-only.
+- **Applied treatment:** not changed yet. The value is kept as recorded and the paper stays in the `year-month` count (24,570).
+- **Rows before / after:** papers 56,495 → 56,495. If the month is set to null: `year-month` 24,570 → 24,569 and `year only` 6,526 → 6,527.
+- **Validation:** found by checking every month and day in the date parts against the calendar (1 invalid month, 0 invalid days).
+- **Checked, not an error:** 44 papers have a publication year before 1950 (earliest 1885). They were checked and are genuine historical papers, so they are kept.
+
 ---
 
 ## Checks that passed
@@ -273,3 +290,4 @@ All counts were reproduced from the raw files (`dictionary_appendix_counts.py`, 
 | Paper key | papers.SID | Unique, no nulls. | Profiling notebook. |
 | Sample keys | samples.sample_id | Unique, no nulls; every curve's sample exists. | Profiling notebook and join check. |
 | JSON syntax of `sample_info` | samples.sample_info | No malformed JSON. | Profiling notebook. |
+| Early publication years | papers.issued | 44 papers before 1950, earliest 1885; checked and genuine, not an error. | Years read from every date and the oldest records reviewed. |
