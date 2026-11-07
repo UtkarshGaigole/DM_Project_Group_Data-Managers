@@ -2,49 +2,54 @@
 
 **Dataset:** `20261001_starrydata2`, Figshare snapshot `10.6084/m9.figshare.34036677.v1` (database snapshot 2026-10-01 02:00:01 JST)  
 **Prepared by:** Group 6 "Data-Managers", SRH University of Applied Sciences Heidelberg  
-**Version:** v2, 2026-11-07  
+**Version:** v2.2, 2026-11-07 (Python Tier 2 code merged 07 Nov, PR #20; formal Tableau–Python comparison pending; precision labels match the outputs; #20 moved to unresolved)  
 **Row counts of the raw tables:** papers 56,495 · samples 106,331 · curves 237,313
 
 ## How to read this register
 
 **Use case.** Training a model on the six thermoelectric properties (Seebeck coefficient, electrical conductivity, electrical resistivity, thermal conductivity, power factor, ZT) with temperature on the x-axis. This is the **in-scope** data: 136,679 curves.
 
-**Severity measures the impact on that use case, not the share of missing values.**
+**Severity measures the impact on that use case, not the share of missing values.** Two ratings are given per issue:
 
-| Severity | Meaning |
+- **Severity** is rated **before treatment**: what the issue would do to the use case if the raw data were used as delivered.
+- **Residual risk** is rated **after the applied treatment**: what is still left for a user of our outputs.
+
+So an issue can be High in severity and Low in residual risk (for example #1, neutralised by the scope filter). Both use the same scale:
+
+| Rating | Meaning |
 |---|---|
 | **High** | Would silently corrupt the values or the structure a model learns from. |
 | **Medium** | Would bias, weaken or leak information in training or evaluation, or removes usable data. |
-| **Low** | Optional or descriptive information, or an issue already neutralised or outside the six properties. Documented for completeness. |
+| **Low** | Affects only optional or descriptive information, or data outside the six properties. Documented for completeness. |
 
 **Eight fields per issue:** problem · table / column · records affected · impact · proposed treatment · applied treatment · rows before / after · validation.
 
-All counts were reproduced from the raw files (`dictionary_appendix_counts.py`, the profiling notebook and the Tableau and Python pipelines). Every issue appears once (20 issues).
+All counts were reproduced from the raw files (`dictionary_appendix_counts.py`, the profiling notebook) and the Tableau Prep flow. Where a check also cites the Python Tier 2 pipeline, that code was merged on 07 Nov (PR #20); the formal Tableau–Python comparison is pending. Every issue appears once (20 issues).
 
 ## Summary
 
-| # | Issue | Table / column | Records affected | Severity | Applied treatment |
-|---|---|---|---|---|---|
-| 1 | Mixed x-axis: temperature and inverse temperature | curves.prop_x | 5,231 curves with core property names | **High** | Scope filter x = Temperature |
-| 2 | Curve points stored as arrays in one cell | curves.x, curves.y | 237,313 curves | **High** | Unpacked to one row per point |
-| 3 | Property name variants and unit errors | curves.prop_y, unit_y | 760 curves (same quantity, x = Temperature); 31 names / 11,295 curves incl. related quantities | **High** | Excluded and reported |
-| 4 | Curves with empty point arrays | curves.x, curves.y | 3,952 (2,140 in scope) | Medium | Flagged `has_points = FALSE` |
-| 5 | Same DOI on different paper records | papers.DOI | 85 rows share 40 DOIs (45 surplus) | Medium | Reported, not changed |
-| 6 | Orphans: SID not found in papers | samples, curves | 9 samples + 31 curves (28 in scope) | Medium | Flagged `is_orphan`, not dropped |
-| 7 | Publication date has variable precision | papers.issued | 31,303 not full dates | Medium | Split into parts plus precision |
-| 8 | 170 property names and 69 units | curves | whole table | Medium | Reason for the narrowed scope |
-| 9 | `sample_info` often empty | samples.sample_info | 33,875 samples without content | Medium | Kept; completeness stated correctly |
-| 10 | Flattening bug in our own pipeline | samples.sample_info | 22,298 values in 15,786 records | Medium | Fix pending and tested safe (43 conflicts to review); Tier 2 keeps raw |
-| 11 | Timestamps stored as JavaScript text | created_at / updated_at | 5 columns, all rows | Low | Parsed to UTC |
-| 12 | `log(Electrical conductivity)` labelled with a linear unit | curves.unit_y | 1,689 | Low | Out of scope; reported |
-| 13 | `sample_info` keys with spelling and space variants | samples.sample_info | 138 keys | Low | Merging mapping proposed |
-| 14 | `composition_details` mostly missing | samples | 87,433 (82.23%) | Low | Kept as null |
-| 15 | Curve comments missing | curves.comments | 103,868 (43.77%) | Low | Kept as null |
-| 16 | Every CSV ends with a blank line | all 3 files | 1 per file | Low | Removed in Tableau |
-| 17 | Line breaks inside quoted text | samples.composition_details | 6,585 records | Low | Handled by the text qualifier |
-| 18 | README says "XXX License" | README.md | n/a | Low | Documentation defect |
-| 19 | README file names and columns do not match the data | README.md | n/a | Low | Documentation defect |
-| 20 | One paper has publication month 0 | papers.issued | 1 paper (SID 31709) | Low | Kept as recorded; still to be flagged |
+| # | Issue | Table / column | Records affected | Severity (before) | Applied treatment | Residual risk (after) |
+|---|---|---|---|---|---|---|
+| 1 | Mixed x-axis: temperature and inverse temperature | curves.prop_x | 5,231 curves with core property names | **High** | Scope filter x = Temperature | Low: only K-based temperature curves remain; 5,231 curves knowingly excluded |
+| 2 | Curve points stored as arrays in one cell | curves.x, curves.y | 237,313 curves | **High** | Unpacked to one row per point | Low: unpacked once and tested |
+| 3 | Property name variants and unit errors | curves.prop_y, unit_y | 760 curves (same quantity, x = Temperature); 31 names / 11,295 curves incl. related quantities | **High** | Excluded and reported | Medium: no wrong values enter scope, but 760 usable curves are lost and unit errors stay uncorrected |
+| 4 | Curves with empty point arrays | curves.x, curves.y | 3,952 (2,140 in scope) | Medium | Flagged `has_points = FALSE` | Low: flagged, no point rows |
+| 5 | Same DOI on different paper records | papers.DOI | 85 rows share 40 DOIs (45 surplus) | Medium | Reported, not changed | Medium: leakage risk remains unless splits group by DOI |
+| 6 | Orphans: SID not found in papers | samples, curves | 9 samples + 31 curves (28 in scope) | Medium | Flagged `is_orphan`, not dropped | Low: flagged and visible (in scope 28 of 136,679, 0.02%; overall 31 of 237,313, 0.01%) |
+| 7 | Publication date has variable precision | papers.issued | 31,303 not full dates | Medium | Split into parts plus precision | Low: precision kept explicit (see #20) |
+| 8 | 170 property names and 69 units | curves | whole table | Medium | Reason for the narrowed scope | Low in scope; unresolved outside the six properties |
+| 9 | `sample_info` often empty | samples.sample_info | 33,875 samples without content | Medium | Kept; completeness stated correctly | Medium: missing descriptors cannot be recovered |
+| 10 | Flattening bug in our own pipeline | samples.sample_info | 22,298 values in 15,786 records | Medium | Fix pending and tested safe (43 conflicts to review); Tier 2 keeps raw | Low for Tier 2 (not flattened); Medium for any flattened output until the fix is merged |
+| 11 | Timestamps stored as JavaScript text | created_at / updated_at | 5 columns, all rows | Low | Parsed to UTC | Low |
+| 12 | `log(Electrical conductivity)` labelled with a linear unit | curves.unit_y | 1,689 | Low | Out of scope; reported | Low |
+| 13 | `sample_info` keys with spelling and space variants | samples.sample_info | 138 keys | Low | Merging mapping proposed | Low |
+| 14 | `composition_details` mostly missing | samples | 87,433 (82.23%) | Low | Kept as null | Low |
+| 15 | Curve comments missing | curves.comments | 103,868 (43.77%) | Low | Kept as null | Low |
+| 16 | Every CSV ends with a blank line | all 3 files | 1 per file | Low | Removed in Tableau | Low |
+| 17 | Line breaks inside quoted text | samples.composition_details | 6,586 records | Low | Handled by the text qualifier | Low |
+| 18 | README says "XXX License" | README.md | n/a | Low | Documentation defect | Low |
+| 19 | README file names and columns do not match the data | README.md | n/a | Low | Documentation defect | Low |
+| 20 | One paper has publication month 0 | papers.issued | 1 paper (SID 31709) | Low | Unresolved: kept as recorded, reported as a limitation | Low |
 
 ---
 
@@ -59,7 +64,7 @@ All counts were reproduced from the raw files (`dictionary_appendix_counts.py`, 
 - **Proposed treatment:** keep only curves whose x-axis is exactly `Temperature` (unit K). Convert inverse-temperature curves only after a separate check.
 - **Applied treatment:** scope filter `prop_x = Temperature`. All 150,426 thermoelectric curves with a temperature x-axis use the unit K, so no conversion is needed.
 - **Rows before / after:** 141,910 → 136,679 curves (5,231 excluded).
-- **Validation:** the filter output is 136,679 curves in Tableau and Python; `unit_x` is K for every kept curve.
+- **Validation:** the filter output is 136,679 curves in Tableau and in Python (local run, 07 Nov); `unit_x` is K for every kept curve.
 
 ### 2. Curve points stored as arrays in one cell
 
@@ -70,7 +75,7 @@ All counts were reproduced from the raw files (`dictionary_appendix_counts.py`, 
 - **Proposed treatment:** unpack once, in one tested Python function, into a tidy point table keyed by the curve key (`figure_id`, `sample_id`) and the point position. Tableau reads that output.
 - **Applied treatment:** `curve_points.csv` with the columns `figure_id`, `sample_id`, `point_index`, `x_value`, `y_value`.
 - **Rows before / after:** 237,313 curves → 233,361 curves with points → 4,839,779 point rows. In scope: 134,539 curves → 2,337,212 points.
-- **Validation:** rows equal the sum of the array lengths; the key (`figure_id`, `sample_id`, `point_index`) is unique; every curve key exists in the raw `curves`; automated checks run in the Python test suite (16 tests pass).
+- **Validation:** rows equal the sum of the array lengths; the key (`figure_id`, `sample_id`, `point_index`) is unique; every curve key exists in the raw `curves`; automated checks run in the Python test suite (16 tests pass; local run, 07 Nov).
 
 ### 3. Property name variants and unit errors
 
@@ -95,7 +100,7 @@ All counts were reproduced from the raw files (`dictionary_appendix_counts.py`, 
 - **Records affected:** 3,952 curves; 2,140 of them in scope.
 - **Impact:** a training row without any points either breaks the pipeline or is silently dropped, which changes the sample counts per property.
 - **Proposed treatment:** keep the curve record, flag it, and exclude it from any point-level modelling step.
-- **Applied treatment:** flagged `has_points = FALSE` (and `n_points = 0`); no rows are produced in the point table.
+- **Applied treatment:** flagged `has_points = FALSE`; `n_points` is null (not 0) because no point rows match in the join; no rows are produced in the point table.
 - **Rows before / after:** curves 237,313 → 237,313 (3,952 flagged); in scope 136,679 → 136,679 (2,140 flagged, 134,539 with points).
 - **Validation:** flag counts are 2,140 FALSE / 134,539 TRUE in scope; the point table has no row for any flagged curve.
 
@@ -115,7 +120,7 @@ All counts were reproduced from the raw files (`dictionary_appendix_counts.py`, 
 - **Problem:** samples and curves reference paper IDs that do not exist in the `papers` table.
 - **Table / column:** `samples.SID`, `curves.SID`
 - **Records affected:** 9 samples and 31 curves, all pointing to 3 SIDs (8534, 8535, 9026). 28 of the 31 curves are in scope.
-- **Impact:** without a paper record these curves cannot be traced to a source or grouped by paper for a leakage-safe split. The affected share is small (0.01%).
+- **Impact:** without a paper record these curves cannot be traced to a source or grouped by paper for a leakage-safe split. The affected share is small: 28 of 136,679 in-scope curves (0.02%); 31 of 237,313 curves overall (0.01%).
 - **Proposed treatment:** keep and flag them, so the problem stays visible and can be reported upstream. Dropping is irreversible.
 - **Applied treatment:** left joins keep every row; an `is_orphan` flag marks the affected curves. Nothing is dropped.
 - **Rows before / after:** samples 106,331 → 106,331 (9 flagged); curves 237,313 → 237,313 (31 flagged); in scope 136,679 → 136,679 (28 flagged).
@@ -128,9 +133,9 @@ All counts were reproduced from the raw files (`dictionary_appendix_counts.py`, 
 - **Records affected:** 31,303 of 56,495 papers are not full dates: year-month 24,570, year only 6,526, no date 207 (20 empty `{}` plus 187 with an empty-string year `[[""]]`). One record (SID 31709) has the invalid month 0.
 - **Impact:** forcing every date into `YYYY-MM-DD` would invent a month and day for more than half of the papers. That distorts any time-based split or time trend a model evaluation relies on.
 - **Proposed treatment:** keep the precision: split into year, month and day and add a precision label.
-- **Applied treatment:** `issued_year`, `issued_month`, `issued_day` and `issued_precision` (`full`, `year-month`, `year`, `none`); missing parts stay null.
-- **Rows before / after:** papers 56,495 → 56,495; precision counts 25,192 full / 24,570 year-month / 6,526 year / 207 none.
-- **Validation:** the same four counts in Tableau and Python; no day or month is imputed. The invalid month in SID 31709 is still to be flagged or set to null (see issue 20).
+- **Applied treatment:** `issued_year`, `issued_month`, `issued_day` and `issued_precision` (`YMD`, `YM`, `Y`, `Unknown`); missing parts stay null.
+- **Rows before / after:** papers 56,495 → 56,495; precision counts 25,192 `YMD` / 24,570 `YM` / 6,526 `Y` / 207 `Unknown`.
+- **Validation:** the same four counts in Tableau and in Python (local run, 07 Nov); no day or month is imputed. The invalid month in SID 31709 is an unresolved issue (see issue 20).
 
 ### 8. 170 property names and 69 units
 
@@ -177,7 +182,7 @@ All counts were reproduced from the raw files (`dictionary_appendix_counts.py`, 
 - **Proposed treatment:** parse to one time base (UTC).
 - **Applied treatment:** parsed to UTC (`created_at_utc`, `updated_at_utc`); all source values carry the +0900 offset.
 - **Rows before / after:** rows unchanged; 5 text columns gain 5 UTC columns.
-- **Validation:** 0 parse failures and 0 nulls; the minimum and maximum are identical in Tableau and Python (2017-09-01 09:19:39 to 2026-09-30 08:34:52 UTC, all before the snapshot time); no record was updated before it was created.
+- **Validation:** 0 parse failures and 0 nulls; the minimum and maximum are identical in Tableau and in Python (local run, 07 Nov) (2017-09-01 09:19:39 to 2026-09-30 08:34:52 UTC, all before the snapshot time); no record was updated before it was created.
 
 ### 12. `log(Electrical conductivity)` labelled with a linear unit
 
@@ -238,7 +243,7 @@ All counts were reproduced from the raw files (`dictionary_appendix_counts.py`, 
 
 - **Problem:** some `composition_details` texts contain line breaks inside quotation marks, so one record spans several physical lines.
 - **Table / column:** `samples.composition_details`
-- **Records affected:** 6,585 records (145,606 physical lines in the file for 106,331 records); none in papers or curves.
+- **Records affected:** 6,586 records, all in `composition_details` and all Windows line breaks (CRLF) (145,606 physical lines in the file for 106,331 records); none in papers or curves.
 - **Impact:** a reader that ignores the quotation marks would split records and shift columns. With the text qualifier set, nothing is lost.
 - **Proposed treatment:** set the text qualifier correctly in every reader.
 - **Applied treatment:** handled by the text qualifier in Tableau and pandas.
@@ -269,13 +274,13 @@ All counts were reproduced from the raw files (`dictionary_appendix_counts.py`, 
 
 ### 20. One paper has publication month 0
 
-- **Problem:** the paper with SID 31709 has the publication date `{"date_parts":[[2018,0]]}`. Month 0 does not exist. The record is kept as recorded and, because it has two date parts, it is classified as `year-month` even though the month is invalid.
+- **Problem:** the paper with SID 31709 has the publication date `{"date_parts":[[2018,0]]}`. Month 0 does not exist. The record is kept as recorded and, because it has two date parts, it is classified as `YM` even though the month is invalid.
 - **Table / column:** `papers.issued`
 - **Records affected:** 1 paper (SID 31709). All other months are 1 to 12 and no day is invalid.
-- **Impact:** negligible for the model. A single paper would carry a month that cannot be read as a date, and it counts as `year-month` precision when only the year can be trusted.
+- **Impact:** negligible for the model. A single paper would carry a month that cannot be read as a date, and it counts as `YM` precision when only the year can be trusted.
 - **Proposed treatment:** flag the record, and set the month to null so the paper is classified as year-only.
-- **Applied treatment:** not changed yet. The value is kept as recorded and the paper stays in the `year-month` count (24,570).
-- **Rows before / after:** papers 56,495 → 56,495. If the month is set to null: `year-month` 24,570 → 24,569 and `year only` 6,526 → 6,527.
+- **Applied treatment:** none; **unresolved issue.** The value is kept as recorded in both pipelines and the paper stays in the `YM` count (24,570). Reported as a limitation and to the maintainers.
+- **Rows before / after:** papers 56,495 → 56,495. If the proposed fix were applied: `YM` 24,570 → 24,569 and `Y` 6,526 → 6,527.
 - **Validation:** found by checking every month and day in the date parts against the calendar (1 invalid month, 0 invalid days).
 - **Checked, not an error:** 44 papers have a publication year before 1950 (earliest 1885). They were checked and are genuine historical papers, so they are kept.
 
