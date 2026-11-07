@@ -41,22 +41,22 @@ Fill in as you go. This table is the basis for the before/after slide.
 | Step | Table | Issue ID | Rows before | Rows after | Validated |
 |---|---|---|---|---|---|
 | T1.1 Checksums | all files | — | — | — | ☑ |
-| T1.2 Text-file inputs | papers | — | 56,496 | 56,496 | ☐ |
-| T1.2 Text-file inputs | samples | — | 106,332 | 106,332 | ☐ |
-| T1.2 Text-file inputs | curves | — | 237,314 | 237,314 | ☐ |
-| T1.3 Trailing blank record | papers | O27 | 56,496 | 56,495 | ☐ |
-| T1.3 Trailing blank record | samples | O27 | 106,332 | 106,331 | ☐ |
-| T1.3 Trailing blank record | curves | O27 | 237,314 | 237,313 | ☐ |
-| T2.1 Timestamps to UTC | papers | O4 | 56,495 | 56,495 | ☐ |
-| T2.1 Timestamps to UTC | samples | O4 | 106,331 | 106,331 | ☐ |
-| T2.1 Timestamps to UTC | curves | O4 | 237,313 | 237,313 | ☐ |
-| T2.2 Publication date precision | papers | O17 | 56,495 | 56,495 | ☐ |
-| T3.1 Tier 2 scope filter | curves | O23, D4, D12 (variants: O29) | 237,313 | 136,679 | ☐ |
-| T4–T5 Joins + orphan flag | curves → samples → papers | O6, O7, D9 | 136,679 | 136,679 | ☐ |
-| A1 Audit: sample uniqueness | samples (Tier 2) | _O-code_ | — | — (0 duplicates) | ☐ |
-| T6–T7 Points count + empty flag | curves + curve_points | O21 | 136,679 | 136,679 | ☐ |
-| T8 Tier 2 points (inner join) | curve_points | O22 | 4,839,779 | 2,337,212 ⏳ | ☐ |
-| T9–T10 Outputs | tier2_curves / tier2_points | — | 136,679 / 2,337,212 ⏳ | 136,679 / 2,337,212 ⏳ | ☐ |
+| T1.2 Text-file inputs | papers | — | 56,496 | 56,496 | ☑ |
+| T1.2 Text-file inputs | samples | — | 106,332 | 106,332 | ☑ |
+| T1.2 Text-file inputs | curves | — | 237,314 | 237,314 | ☑ |
+| T1.3 Trailing blank record | papers | O27 | 56,496 | 56,495 | ☑ |
+| T1.3 Trailing blank record | samples | O27 | 106,332 | 106,331 | ☑ |
+| T1.3 Trailing blank record | curves | O27 | 237,314 | 237,313 | ☑ |
+| T2.1 Timestamps to UTC | papers | O4 | 56,495 | 56,495 | ☑ |
+| T2.1 Timestamps to UTC | samples | O4 | 106,331 | 106,331 | ☑ |
+| T2.1 Timestamps to UTC | curves | O4 | 237,313 | 237,313 | ☑ |
+| T2.2 Publication date precision | papers | O17 | 56,495 | 56,495 | ☑ |
+| T3.1 Tier 2 scope filter | curves | O23, D4, D12 (variants: O29) | 237,313 | 136,679 | ☑ |
+| T4–T5 Joins + orphan flag | curves → samples → papers | O6, O7, D9 | 136,679 | 136,679 | ☑ |
+| A1 Audit: sample uniqueness | samples (all) | — (passed check) | 106,331 | 106,331 (0 duplicates) | ☑ |
+| T6–T7 Points count + empty flag | curves + curve_points | O21 | 136,679 | 136,679 | ☑ |
+| T8 Tier 2 points (inner join) | curve_points | O22 | 4,839,779 | 2,337,212 | ☑ |
+| T9–T10 Outputs | tier2_curves / tier2_points | — | 136,679 / 2,337,212 | 136,679 / 2,337,212 | ☑ |
 
 ---
 
@@ -65,7 +65,7 @@ Fill in as you go. This table is the basis for the before/after slide.
 ### Step T1.1: Verify File Integrity via Checksums
 
 **Status:** Done — 4 of 4 members verified _(Not Started / In Progress / Under Review / Done)_
-**Date / author / reviewer:** 2026-11-06 / Utkarsh / _reviewer: to fill in_
+**Date / author / reviewer:** 2026-11-06 / Utkarsh / Aditya
 
 **Why this step matters**
 - Tableau Prep cannot compute cryptographic checksums, so verification happens **before** ingestion, outside Tableau.
@@ -134,7 +134,7 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 
 ### Step T1.2: Set Up Text-File Inputs in Tableau Prep
 
-**Status:** In Progress _(Not Started / In Progress / Under Review / Done)_
+**Status:** Done _(Not Started / In Progress / Under Review / Done)_
 **Date / author / reviewer:** 2026-11-06 / Utkarsh / Aditya
 
 | Field | Value |
@@ -173,7 +173,7 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 
 ### Step T1.3: Remove Trailing Blank Record
 
-**Status:** In Progress _(Not Started / In Progress / Under Review / Done)_
+**Status:** Done _(Not Started / In Progress / Under Review / Done)_
 **Date / author / reviewer:** 2026-11-06 / Utkarsh / Aditya
 
 | Field | Value |
@@ -181,8 +181,8 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 | Issue ID(s) (issue register) | O27 |
 | Table | papers, samples, curves (all three) |
 | Columns affected | All (the record is empty in every column); filter condition on `SID` |
-| Flow step name in `.tflx` | papers: _to fill in_; samples: _to fill in_; curves: _confirm (was "Remove trailing empty row"; check against new branch-suffix naming)_ |
-| Python equivalent (`src/`) | `src/load_data.py → load_starrydata_file()`. Currently relies on the `pandas.read_csv` default (`skip_blank_lines=True`). **Pending (Aditya):** set `skip_blank_lines=True` explicitly and assert the row count, so the matching behaviour is visible in the code. |
+| Flow step name in `.tflx` | papers: Remove trailing empty row - Papers; samples: Remove trailing empty row - Samples; curves: Remove trailing empty row - Curves |
+| Python equivalent (`src/`) | `src/load_data.py → load_starrydata_file()`. Done: sets `skip_blank_lines=True` explicitly and asserts 56,495 / 106,331 / 237,313 rows. |
 
 **Exam explanation**
 > Each source CSV ends with an extra blank line. Tableau Prep reads it as an empty record; pandas skips it by default. We remove it in Tableau so both pipelines start from the same row counts. Verified: 0 rows with the wrong number of columns; papers and curves have 0 line breaks inside fields, and the line breaks inside samples fields are quoted and parsed correctly.
@@ -211,7 +211,7 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 - So the empty record comes from the trailing blank line, not from a broken multi-line value.
 - Profiling: `SID` has 0 nulls in all real records, so the `SID is null` filter removes only the blank record.
 - Tableau row counts, confirmed: papers 56,496 → 56,495; samples 106,332 → 106,331; curves 237,314 → 237,313. Exactly 1 row removed per table.
-- Tableau row count after this step equals the pandas row count, per table. _Pending Aditya's row-count assertion._
+- Tableau row count after this step equals the pandas row count, per table: `load_data.py` asserts 56,495 / 106,331 / 237,313.
 
 **Decisions & justification (exam defence)**
 - Delete rather than flag: the record holds no data in any field, so there is nothing to preserve or quarantine.
@@ -229,7 +229,7 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 
 ### Step T2.1: Convert Timestamps to UTC
 
-**Status:** In Progress _(Not Started / In Progress / Under Review / Done)_
+**Status:** Done _(Not Started / In Progress / Under Review / Done)_
 **Date / author / reviewer:** 2026-11-06 / Utkarsh / Aditya
 
 | Field | Value |
@@ -237,8 +237,8 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 | Issue ID(s) (issue register) | O4 (JavaScript date strings) |
 | Table | papers, samples, curves |
 | Columns affected | `papers.created_at`, `samples.created_at`, `samples.updated_at`, `curves.created_at`, `curves.updated_at` → each replaced by a `_utc` column |
-| Flow step name in `.tflx` | papers: Format Timestamps (UTC) - Papers; samples: _confirm (expected "Format Timestamps (UTC) - Samples")_; curves: _confirm (expected "Format Timestamps (UTC) - Curves")_. Curves step sits directly after the trailing-row filter. |
-| Python equivalent (`src/`) | Pending (Aditya): same rule in `src/clean_data.py` |
+| Flow step name in `.tflx` | papers: Format Timestamps (UTC) - Papers; samples: Format Timestamps (UTC) - Samples; curves: Format Timestamps (UTC) - Curves. Curves step sits directly after the trailing-row filter. |
+| Python equivalent (`src/`) | `clean_timestamp_column()` in `src/clean_data.py` (on main) |
 
 **Why this step matters / problem addressed**
 - Raw values are JavaScript date strings, e.g. `Thu Jan 25 2018 13:56:56 GMT+0900 (Japan Standard Time)`.
@@ -275,7 +275,7 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 - 0 nulls after parsing in all five columns, so no value failed to parse.
 - All maxima are earlier than the snapshot timestamp (2026-09-30 17:00:01 UTC, see Source), so no parsed timestamp lies after the data was exported. This plausibility check would catch a wrong offset that pushed values forward.
 - **Tableau↔Python equivalence (first evidence):** null counts and min/max are identical to an independent Python computation with the same rule (06 Nov).
-- Spot-check across midnight, where a wrong rule is most visible (847 papers have a UTC date one day earlier than the Japanese date): SID 18761, raw `Sun Jan 06 2019 01:04:51 GMT+0900` → expected `05/01/2019, 04:04:51 pm` (16:04:51 UTC, previous day). Shown in Tableau: _⏳ to confirm_
+- Spot-check across midnight, where a wrong rule is most visible (847 papers have a UTC date one day earlier than the Japanese date): SID 18761, raw `Sun Jan 06 2019 01:04:51 GMT+0900` → expected `05/01/2019, 04:04:51 pm` (16:04:51 UTC, previous day). Shown in Tableau: confirmed `05/01/2019, 04:04:51 pm`.
 
 **Decisions & justification (exam defence)**
 - UTC, not JST (D10): one unambiguous time base, and Python uses exactly the same rule.
@@ -291,7 +291,7 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 
 ### Step T2.2: Publication Date Precision
 
-**Status:** In Progress _(Not Started / In Progress / Under Review / Done)_
+**Status:** Done _(Not Started / In Progress / Under Review / Done)_
 **Date / author / reviewer:** 2026-11-07 / Utkarsh / Aditya
 
 | Field | Value |
@@ -313,9 +313,10 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
   - `issued_cleaned` = `REGEXP_EXTRACT([issued], '\[\[(.*?)\]\]')`
   - `issued_year` = `TRIM(SPLIT([issued_cleaned], ",", 1))`
   - `issued_month` = `TRIM(SPLIT([issued_cleaned], ",", 2))`
-  - `issued_day` = _paste the `RIGHT` / `FINDNTH` expression from the flow_
-  - `issued_precision` = _paste the full chain from the flow_ (`IF NOT ISNULL([issued_day]) THEN "YMD" ELSEIF … "YM" … "Y" ELSE "Unknown" END`)
+  - `issued_day` = `TRIM(RIGHT([issued_cleaned], IF FINDNTH([issued_cleaned], ",", 2) > 0 THEN LEN([issued_cleaned]) - FINDNTH([issued_cleaned], ",", 2) ELSE 0 END))`
+  - `issued_precision` = `IF NOT ISNULL([issued_day]) THEN "YMD" ELSEIF NOT ISNULL([issued_month]) THEN "YM" ELSEIF NOT ISNULL([issued_year]) THEN "Y" ELSE "Unknown" END`
 - `[[""]]` (187 papers) becomes null when converted to a whole number, so it is classified Unknown, which matches Python.
+- SID 31709 has month 0 (`[[2018,0]]`); it is kept as recorded and classified YM (O35).
 
 **Size of the problem**
 
@@ -333,14 +334,14 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 
 | `issued_precision` | Expected (baseline) | Rows in Tableau profile | Match? |
 |---|---|---|---|
-| YMD | 25,192 | _⏳ confirm_ | ☐ |
-| YM | 24,570 | _⏳ confirm_ | ☐ |
-| Y | 6,526 | _⏳ confirm_ | ☐ |
-| Unknown | 207 | _⏳ confirm_ | ☐ |
-| **Total** | 56,495 | 56,495 | ☐ |
+| YMD | 25,192 | 25,192 | ☑ Yes |
+| YM | 24,570 | 24,570 | ☑ Yes |
+| Y | 6,526 | 6,526 | ☑ Yes |
+| Unknown | 207 | 207 | ☑ Yes |
+| **Total** | 56,495 | 56,495 | ☑ Yes |
 
 **Validation performed**
-- Row counts per precision category match the baseline exactly. _Tick once confirmed in the Tableau profile._
+- Row counts per precision category match the baseline exactly (confirmed in the Tableau profile).
 - The intended nulls follow from the categories: `issued_month` 6,733 = Y 6,526 + Unknown 207; `issued_day` 31,303 = YM 24,570 + 6,733.
 - 0 nulls in `issued_precision`: every row has an explicit precision state, including Unknown.
 
@@ -357,7 +358,7 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 
 ### Step T3.1: Tier 2 Scope Filter on Curves
 
-**Status:** In Progress _(Not Started / In Progress / Under Review / Done)_
+**Status:** Done _(Not Started / In Progress / Under Review / Done)_
 **Date / author / reviewer:** 2026-11-07 / Utkarsh / Aditya
 
 | Field | Value |
@@ -374,9 +375,10 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 
 **Actions taken (Tableau Prep step / settings)**
 - Three conditions, applied in this order:
-  1. `project_names` contains the thermoelectric tag;
-  2. `prop_y` exactly matches one of six properties: Seebeck, thermal conductivity, ZT, electrical conductivity, electrical resistivity, power factor (_paste the exact strings as used in the filter_);
-  3. `prop_x` = Temperature.
+  1. `CONTAINS([project_names], "ThermoelectricMaterials")`;
+  2. `[prop_y]` exactly one of: "Seebeck coefficient", "Electrical conductivity", "Electrical resistivity", "Thermal conductivity", "Power factor", "ZT" (OR-chain of equality tests);
+  3. `[prop_x] = "Temperature"`.
+- Execution order verified in the Changes pane (07 Nov).
 - Exact matching only (D12): about 760 name variants (e.g. "thermopower") are excluded, not merged (O29).
 
 | After condition | Rows remaining | Removed by this condition |
@@ -410,7 +412,7 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 | Power factor | 18,043 |
 | **Total** | 136,679 |
 
-- _Confirm intermediate and per-property counts in the Tableau profile; record whether they match `filter_tier2_curves()`._
+- Intermediate and per-property counts confirmed in the Tableau profile; they match Aditya's local run of `filter_tier2_curves()` (07 Nov, 09:03); code not yet on main. _Update once Aditya pushes to main._
 
 **Decisions & justification (exam defence)**
 - Defined the AI-readiness validation boundary.
@@ -425,7 +427,7 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 
 ### Steps T4–T5: Relational Joins & Orphan Flag
 
-**Status:** In Progress _(Not Started / In Progress / Under Review / Done)_
+**Status:** Done _(Not Started / In Progress / Under Review / Done)_
 **Date / author / reviewer:** 2026-11-07 / Utkarsh / Aditya
 
 | Field | Value |
@@ -444,7 +446,7 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 - Left join curves → samples on `sample_id`; then left join → papers on `SID`.
 - `is_orphan` = TRUE when the papers-side foreign key `SID-2` is null after the join. The flag evaluates the key itself, not a proxy metadata field such as `title`: a real paper with a missing title would otherwise be a false positive. It is computed from the join result, not from a hard-coded list of SIDs, so it still works after a data refresh.
 - Exact calculated field as in the flow: `IF ISNULL([SID-2]) THEN TRUE ELSE FALSE END`
-- Removed the duplicate join columns (e.g. `SID-1`, `SID-2`) **after** `is_orphan` was computed, since the flag depends on `SID-2`. Both happen in "Flag Orphans & Clean Schema". _Confirm the calculated field comes before the column removal inside that step._
+- Removed the duplicate join columns (e.g. `SID-1`, `SID-2`) **after** `is_orphan` was computed, since the flag depends on `SID-2`. Both happen in "Flag Orphans & Clean Schema". Order confirmed by the result: `is_orphan` = 28 could not be computed if `SID-2` were already removed.
 
 **Size of the problem**
 
@@ -454,10 +456,10 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 | Columns (table total) | 16 | 34 (+3 samples, +14 papers, +`is_orphan`, after removing duplicate keys) |
 | Records affected by this step | 28 orphans | — |
 | Rows removed or flagged → destination | 0 removed; 28 flagged in `is_orphan` | — |
-| Nulls in `is_orphan` | n/a (new column) | _to fill in (expected 0)_ |
+| Nulls in `is_orphan` | n/a (new column) | 0 |
 
 **Validation performed**
-- 28 orphans identified (`is_orphan` = TRUE), matching the target. _Record where the target comes from._
+- 28 orphans identified (`is_orphan` = TRUE), matching the target (confirmed).
 - 0 unmatched samples.
 - Row count unchanged after both joins (136,679), so no duplicate keys on the samples or papers side multiplied rows.
 
@@ -474,23 +476,24 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 
 ### Step A1 (Audit Branch): Sample Uniqueness Check
 
-**Status:** In Progress _(Not Started / In Progress / Under Review / Done)_
+**Status:** Done _(Not Started / In Progress / Under Review / Done)_
 **Date / author / reviewer:** 2026-11-07 / Utkarsh / Aditya
 
 | Field | Value |
 |---|---|
-| Issue ID(s) (issue register) | _O-code: to fill in_ (duplicate samples) |
-| Table | samples, within Tier 2 scope |
+| Issue ID(s) (issue register) | — (passed check) |
+| Table | samples, all 106,331 rows (Tier 1) |
 | Columns affected | None (read-only audit; nothing feeds an output) |
-| Flow step name in `.tflx` | "Audit: Count Sample IDs" → "Filter: Duplicates > 1" |
-| Python equivalent (`src/`) | _Pending (Aditya): duplicate check on the same key_ |
+| Flow step name in `.tflx` | "Audit: Count Sample IDs" → "Filter: Duplicates > 1" (branches off "Format Timestamps (UTC) - Samples") |
+| Python equivalent (`src/`) | Primary-key test in `src/validate.py` |
 
 **Why this step matters / problem addressed**
 - A duplicate sample would multiply curves in the samples join (T4–T5) and inflate row counts.
-- The audit proves the samples key is unique within Tier 2, instead of assuming it.
+- The audit proves `sample_id` is a unique key of the samples table, instead of assuming it.
 
 **Actions taken (Tableau Prep step / settings)**
-- Separate audit branch, off the main flow, so the check does not change any output.
+- Separate audit branch, starting from "Format Timestamps (UTC) - Samples", off the main flow, so the check does not change any output.
+- It runs on the samples table itself, not on the curves: one sample has several curves, so counting `sample_id` across curves would show repeats that are not duplicates.
 - "Audit: Count Sample IDs": group by `sample_id`, count with `Number of Rows`.
 - "Filter: Duplicates > 1": keep only groups where the count is greater than 1.
 
@@ -498,12 +501,12 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 
 | Metric | Result |
 |---|---|
-| Sample keys checked (Tier 2) | _to fill in_ |
+| Sample keys checked | 106,331 `sample_id` values (all rows of samples) |
 | Keys with `Number of Rows` > 1 | **0** |
 | Rows removed or flagged → destination | 0 (audit only, no output) |
 
 **Validation performed**
-- Exactly 0 duplicate samples within the Tier 2 scope.
+- Exactly 0 duplicate `sample_id` values in all 106,331 samples rows, so the key also holds for every subset, including the samples referenced by Tier 2 curves.
 - Consistent with T4–T5: the row count stayed at 136,679 after the samples join, which a duplicated key would have increased.
 
 **Decisions & justification (exam defence)**
@@ -517,7 +520,7 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 
 ### Steps T6–T7: Ingest Curve Points & Flag Empty Curve
 
-**Status:** In Progress _(Not Started / In Progress / Under Review / Done)_
+**Status:** Done _(Not Started / In Progress / Under Review / Done)_
 **Date / author / reviewer:** 2026-11-07 / Utkarsh / Aditya
 
 | Field | Value |
@@ -545,7 +548,7 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 | Columns (table total) | 34 | 34 (+`n_points`, +`has_points`, −`x`, −`y`) |
 | Records affected by this step | 2,140 empty curves | — |
 | Rows removed or flagged → destination | 0 removed; 2,140 flagged `has_points` = FALSE | — |
-| Nulls in `has_points` | n/a (new column) | _to fill in (expected 0)_ |
+| Nulls in `has_points` | n/a (new column) | 0 |
 
 | `has_points` | Curves |
 |---|---|
@@ -554,7 +557,7 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 | **Total** | 136,679 |
 
 **Validation performed**
-- `has_points`: TRUE 134,539, FALSE 2,140; together exactly 136,679, so every curve is classified. _Confirm in the Tableau profile._
+- `has_points`: TRUE 134,539, FALSE 2,140; together exactly 136,679, so every curve is classified (confirmed in the Tableau profile).
 - Row count unchanged (136,679), so the aggregation produced one row per curve before the join.
 
 **Decisions & justification (exam defence)**
@@ -568,7 +571,7 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 
 ### Step T8: Tier 2 Points (Inner Join)
 
-**Status:** In Progress _(Not Started / In Progress / Under Review / Done)_
+**Status:** Done _(Not Started / In Progress / Under Review / Done)_
 **Date / author / reviewer:** 2026-11-07 / Utkarsh / Aditya
 
 | Field | Value |
@@ -590,16 +593,16 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 
 | Metric | Before | After |
 |---|---|---|
-| Rows (table total) | 4,839,779 | 2,337,212 ⏳ _target; confirm actual count after the flow run_ |
+| Rows (table total) | 4,839,779 | 2,337,212 |
 | Columns (table total) | 39 (5 point columns + 34 curve columns, after the join) | 7 |
 | Records affected by this step | 2,502,567 (4,839,779 − 2,337,212) | — |
 | Rows removed or flagged → destination | 2,502,567 → out-of-scope points excluded; retained in `curve_points.csv` | — |
-| Nulls in touched column(s) | _to fill in_ | |
+| Nulls in the 5 point columns | — | 0 in all 5 (checked across all 2,337,212 Tier 2 points) |
 
 **Validation performed**
 - Schema restricted to the 7 point-definition columns.
 - Cross-check: the sum of `n_points` over the Tier 2 curves (T7) = 2,337,212, the expected row count of this step. Two independent routes give the same number.
-- Row count in the Tableau output: _⏳ confirm 2,337,212 after the flow run._
+- Row count in the Tableau output: confirmed exactly 2,337,212 after the flow run.
 
 **Decisions & justification (exam defence)**
 - Inner join discards out-of-scope points, so `tier2_points.csv` aligns exactly with the validated Tier 2 curves.
@@ -613,7 +616,7 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 
 ### Steps T9–T10: Final Outputs
 
-**Status:** In Progress _(Not Started / In Progress / Under Review / Done)_
+**Status:** Done _(Not Started / In Progress / Under Review / Done)_
 **Date / author / reviewer:** 2026-11-07 / Utkarsh / Aditya
 
 | Field | Value |
@@ -626,32 +629,32 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 **Actions taken**
 - Output steps: file type CSV, location `data/processed/`, named `tier2_curves.csv` and `tier2_points.csv`.
 - Raw `x` and `y` string arrays are intentionally absent from `tier2_curves.csv` (removed upstream in T6–T7).
-- Ran the full flow; packaged the flow as `.tflx` for reproducible grading.
+- Ran the full flow. Flow in the repo as `.tfl`; packaged `.tflx` (110 MB) in the Moodle ZIP.
 
 **Size of the problem**
 
 | Output | Rows | Columns |
 |---|---|---|
-| `tier2_curves.csv` | 136,679 ⏳ _confirm after run_ | 34 ⏳ (no `x`, `y`) |
-| `tier2_points.csv` | 2,337,212 ⏳ _confirm after run_ | 7 |
+| `tier2_curves.csv` | 136,679 | 34 (no `x`, `y`) |
+| `tier2_points.csv` | 2,337,212 | 7 |
 
 **Validation performed**
-- Schema printed and checked in pandas (column index); row counts compared with the target scopes. _Record the actual counts read back after the run:_
+- Schema printed and checked in pandas (column index); row counts compared with the target scopes. Actual counts read back after the run:
 
 | Check after the flow run | Expected | Actual |
 |---|---|---|
-| `tier2_curves.csv` rows / columns | 136,679 / 34, no `x`/`y` | ⏳ |
-| `tier2_points.csv` rows / columns | 2,337,212 / 7 | ⏳ |
-| `is_orphan` = TRUE | 28 | ⏳ |
-| `has_points` = FALSE | 2,140 | ⏳ |
-| Precision counts (T2.2) | 25,192 / 24,570 / 6,526 / 207 | ⏳ |
+| `tier2_curves.csv` rows / columns | 136,679 / 34, no `x`/`y` | 136,679 / 34, no `x`/`y` ☑ |
+| `tier2_points.csv` rows / columns | 2,337,212 / 7 | 2,337,212 / 7 ☑ |
+| `is_orphan` = TRUE | 28 | 28 ☑ |
+| `has_points` = FALSE | 2,140 | 2,140 ☑ |
+| Precision counts (T2.2) | 25,192 / 24,570 / 6,526 / 207 | 25,192 / 24,570 / 6,526 / 207 ☑ |
 
 - Both files and the header line of each sent to Aditya: ☐
 
 **Decisions & justification (exam defence)**
 - Redundant join keys removed, so each field appears once.
 - `x` and `y` arrays dropped from `tier2_curves.csv` to enforce First Normal Form (1NF): an array packs many values into one cell, so it is not atomic. The same coordinates are already stored atomically, one point per row, in `tier2_points.csv`, linked to the curve by its key. Keeping both would duplicate the data and bloat the file. _Validation: confirm no `x`/`y` column in the pandas column index of `tier2_curves.csv`._
-- Clean CSVs exported for the Python cross-validation; flow packaged as `.tflx` so the run can be reproduced.
+- Clean CSVs exported for the Python cross-validation; flow in the repo as `.tfl`, and packaged as `.tflx` (110 MB, with data) in the Moodle ZIP so the run can be reproduced.
 
 **Evidence for presentation**
 - ☐ Screenshot of the output settings and the run result
