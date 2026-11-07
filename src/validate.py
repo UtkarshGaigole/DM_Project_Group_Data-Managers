@@ -109,7 +109,13 @@ def validate_identifier_types(df):
     return df
 
 
-def validate_curve_references(curves, samples, papers):
+
+def validate_curve_references(
+    curves,
+    samples,
+    papers,
+    expected_orphan_sids=EXPECTED_ORPHAN_SIDS
+):
     """Check curve references and identify orphan SIDs."""
 
     sample_ids = set(samples["sample_id"].dropna())
@@ -118,22 +124,22 @@ def validate_curve_references(curves, samples, papers):
     unmatched_sample_ids = curve_sample_ids - sample_ids
 
     if unmatched_sample_ids:
-        print(
-            "WARNING: Curve sample IDs without matching Samples: "
-            f"{len(unmatched_sample_ids):,}"
+        raise ValueError(
+            f"Found {len(unmatched_sample_ids):,} "
+            "curve sample IDs without matching Samples."
         )
-    else:
-        print("PASS: All curve sample IDs reference Samples.")
+
+    print("PASS: All curve sample IDs reference Samples.")
 
     paper_sids = set(papers["SID"].dropna())
     curve_sids = set(curves["SID"].dropna())
 
     orphan_sids = curve_sids - paper_sids
 
-    if orphan_sids != EXPECTED_ORPHAN_SIDS:
+    if orphan_sids != expected_orphan_sids:
         raise ValueError(
             f"Orphan SID mismatch. "
-            f"Expected {sorted(EXPECTED_ORPHAN_SIDS)}, "
+            f"Expected {sorted(expected_orphan_sids)}, "
             f"got {sorted(orphan_sids)}."
         )
 
@@ -141,6 +147,9 @@ def validate_curve_references(curves, samples, papers):
 
     print(f"PASS: Orphan SIDs identified = {sorted(orphan_sids)}")
     print(f"Orphan curve records retained = {orphan_rows:,}")
+
+    return orphan_sids, orphan_rows
+
 
 
 def parse_curve_array(value, column_name, row_index):
@@ -167,8 +176,13 @@ def parse_curve_array(value, column_name, row_index):
     return parsed
 
 
-def validate_curve_arrays(curves):
-    """Validate x/y arrays and independently calculate point counts."""
+
+def validate_curve_arrays(
+    curves,
+    expected_points=EXPECTED_RAW_CURVE_POINTS,
+    expected_empty_curves=EXPECTED_EMPTY_CURVES
+):
+    """Validate x/y arrays and calculate measurement-point counts."""
 
     total_points = 0
     empty_curves = 0
@@ -188,21 +202,24 @@ def validate_curve_arrays(curves):
 
         total_points += len(x_values)
 
-    if total_points != EXPECTED_RAW_CURVE_POINTS:
+    if total_points != expected_points:
         raise ValueError(
-            f"Expected {EXPECTED_RAW_CURVE_POINTS:,} raw points, "
+            f"Expected {expected_points:,} raw points, "
             f"got {total_points:,}."
         )
 
-    if empty_curves != EXPECTED_EMPTY_CURVES:
+    if empty_curves != expected_empty_curves:
         raise ValueError(
-            f"Expected {EXPECTED_EMPTY_CURVES:,} empty curves, "
+            f"Expected {expected_empty_curves:,} empty curves, "
             f"got {empty_curves:,}."
         )
 
     print("PASS: All x/y arrays have matching lengths.")
     print(f"PASS: Total raw measurement points = {total_points:,}")
     print(f"PASS: Empty curves = {empty_curves:,}")
+
+    return total_points, empty_curves
+
 
 
 def validate_curve_points(curves):

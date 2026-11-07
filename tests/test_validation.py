@@ -1,6 +1,8 @@
 
 import pandas as pd
 import pytest
+import json
+
 
 from src.validate import (
     validate_schema,
@@ -8,6 +10,9 @@ from src.validate import (
     validate_not_null,
     validate_unique_key,
     validate_identifier_types,
+    parse_curve_array,
+    validate_curve_arrays,
+    validate_curve_references,
 )
 
 
@@ -103,3 +108,112 @@ def test_identifier_types_are_strings(sample_dataframe):
 
     assert result["SID"].dtype == pd.StringDtype()
     assert result["sample_id"].dtype == pd.StringDtype()
+
+
+def test_curve_arrays_pass():
+    curves = pd.DataFrame({
+        "x": [
+            json.dumps([1, 2, 3]),
+            json.dumps([4, 5])
+        ],
+        "y": [
+            json.dumps([10, 20, 30]),
+            json.dumps([40, 50])
+        ]
+    })
+
+    total_points, empty_curves = validate_curve_arrays(
+        curves,
+        expected_points=5,
+        expected_empty_curves=0
+    )
+
+    assert total_points == 5
+    assert empty_curves == 0
+
+
+def test_curve_arrays_detect_length_mismatch():
+    curves = pd.DataFrame({
+        "x": [json.dumps([1, 2, 3])],
+        "y": [json.dumps([10, 20])]
+    })
+
+    with pytest.raises(ValueError, match="length mismatch"):
+        validate_curve_arrays(
+            curves,
+            expected_points=3,
+            expected_empty_curves=0
+        )
+
+
+def test_curve_arrays_detect_empty_arrays():
+    curves = pd.DataFrame({
+        "x": [json.dumps([]), json.dumps([1, 2])],
+        "y": [json.dumps([]), json.dumps([10, 20])]
+    })
+
+    total_points, empty_curves = validate_curve_arrays(
+        curves,
+        expected_points=2,
+        expected_empty_curves=1
+    )
+
+    assert total_points == 2
+    assert empty_curves == 1
+
+
+def test_invalid_curve_array_json():
+    with pytest.raises(ValueError, match="Invalid x JSON"):
+        parse_curve_array("{invalid}", "x", 0)
+
+
+def test_curve_array_must_be_a_list():
+    with pytest.raises(ValueError, match="must contain a JSON array"):
+        parse_curve_array(json.dumps({"value": 10}), "x", 0)
+
+
+def test_orphan_sid_detection():
+    curves = pd.DataFrame({
+        "SID": ["1001", "8534", "8535"],
+        "sample_id": ["101", "102", "103"]
+    })
+
+    samples = pd.DataFrame({
+        "sample_id": ["101", "102", "103"]
+    })
+
+    papers = pd.DataFrame({
+        "SID": ["1001"]
+    })
+
+    orphan_sids, orphan_rows = validate_curve_references(
+        curves,
+        samples,
+        papers,
+        expected_orphan_sids={"8534", "8535"}
+    )
+
+    assert orphan_sids == {"8534", "8535"}
+    assert orphan_rows == 2
+
+def test_curve_reference_validation_fails_for_missing_sample():
+    curves = pd.DataFrame({
+        "SID": ["1001"],
+        "sample_id": ["999"]
+    })
+
+    samples = pd.DataFrame({
+        "sample_id": ["101"]
+    })
+
+    papers = pd.DataFrame({
+        "SID": ["1001"]
+    })
+
+    with pytest.raises(ValueError, match="without matching Samples"):
+        validate_curve_references(
+            curves,
+            samples,
+            papers,
+            expected_orphan_sids=set()
+        )
