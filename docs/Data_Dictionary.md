@@ -23,6 +23,14 @@ The data product is documented as three related tables (`papers`, `samples`, `cu
 
 The profiling notebook found no duplicate or missing `SID` values in `papers`, and no duplicate or missing `sample_id` values in `samples` for this snapshot. Use (`SID`, `sample_id`) for the sample-to-curve relationship; this avoids relying on `sample_id` alone across other snapshots.
 
+**Observed in the raw files (this snapshot):**
+ 
+- (`figure_id`, `sample_id`) is unique across all 237,313 curve rows (0 duplicates, 0 null `figure_id`, 0 fully duplicate rows), so it is a valid `curve_key`. Adding `SID` changes nothing: each `figure_id` and each `sample_id` belongs to exactly one `SID`. No single column is unique.
+- `figure_id` identifies one plot: each (`SID`, `figure_id`) has exactly one (`prop_x`, `prop_y`) pair. Median 3 curves per figure, maximum 52.
+- Every curve's (`SID`, `sample_id`) pair exists in `samples` (0 unmatched), and `DOI` agrees between `curves`, `samples` and `papers` wherever they join (0 mismatches).
+- `papers.DOI` is **not** unique: 85 rows share 40 DOIs (45 surplus rows). Join on `SID`, never on `DOI`.
+- Coverage is uneven: 38,988 of 56,495 papers (69.0%) have no samples and 38,994 have no curves, so the `papers` table is a superset of the papers that have digitized data. 118 samples have no curves.
+
 ## `papers` Table
 
 | Column | Logical type | Definition |
@@ -38,7 +46,7 @@ The profiling notebook found no duplicate or missing `SID` values in `papers`, a
 | `volume` | String | Volume value as recorded for the publication. |
 | `issue` | String | Issue value as recorded for the publication. |
 | `page` | String | Page range or page value as recorded for the publication. |
-| `ISSN` | String | International Standard Serial Number value(s), if supplied. |
+| `ISSN` | String | One or more comma-separated International Standard Serial Numbers (for example 0001-4842,1520-4898), if supplied. |
 | `publisher` | String | Publisher name. |
 | `project_names` | JSON array | Starrydata project labels associated with the paper. |
 | `created_at` | Timestamp string | Time the paper record was created in Starrydata; source timestamp includes a timezone. |
@@ -47,15 +55,15 @@ The profiling notebook found no duplicate or missing `SID` values in `papers`, a
 
 | Column | Logical type | Definition |
 |---|---|---|
-| `sample_name` | String | Name or label assigned to the material sample. |
+| `sample_name` | String | Name or label assigned to the material sample. It usually differs from composition (the two are equal for only 9.5% of rows). Missing for 27 rows. |
 | `sample_id` | Integer identifier | Starrydata sample identifier; use with `SID` to identify a sample across related records. |
-| `composition` | String | Reported chemical composition or sample description. |
-| `composition_details` | String | Additional composition or sample detail. |
+| `composition` | String | Reported chemical composition or sample description. Missing for 191 rows. |
+| `composition_details` | String | Additional composition or sample detail. Missing for 87,433 rows (82.23%). |
 | `SID` | Integer identifier | Starrydata identifier of the paper describing the sample; foreign key to `papers.SID`. |
 | `DOI` | String | DOI of the publication associated with the sample. |
-| `created_at` | Timestamp string | Time the sample record was created; source timestamp includes a timezone. |
-| `updated_at` | Timestamp string | Time the sample record was last updated; source timestamp includes a timezone. |
-| `sample_info_raw` | JSON object stored as string | Original `sample_info` content retained unchanged for provenance, including category, comment, extracted text, and source-specific details. |
+| `created_at` | Timestamp string | Time the sample record was created; JavaScript date string in JST (+0900), same format as `papers.created_at`. The processed output adds `created_at_utc`. |
+| `updated_at` | Timestamp string | Time the sample record was last updated; same format. The processed output adds `updated_at_utc` |
+| `sample_info_raw` | JSON object stored as string | Original `sample_info` content (raw column name `sample_info`) retained unchanged for provenance, including category, comment, extracted text, and source-specific details. |
 
 
 ### Structure of `sample_info`
@@ -91,6 +99,7 @@ Before the variants below are applied, all keys are trimmed of leading/trailing 
 | `magnetic field` | ` magnetic field` (leading space). |
 | `Maximum power` | `Maximum power ` (trailing space). |
 
+Kept as separate columns (not merged): laser flash and different thermal analyzer, LaserFlash and DifferentialThermalAnalyzer (similar names but distinct source keys), and Sintering temperature (dielectric project) versus sintering temperature (hypermaterial project), which differ only by case but come from different projects. Output column names reproduce the source spelling after trimming, so they mix CamelCase, spaces and special characters (/, |, parentheses); rename to a consistent style such as snake_case if the columns are loaded into a SQL database.
 
 
 ## `curves` Table
@@ -99,37 +108,74 @@ Before the variants below are applied, all keys are trimmed of leading/trailing 
 |---|---|---|
 | `SID` | Integer identifier | Starrydata identifier of the source paper; foreign key to `papers.SID`. |
 | `DOI` | String | DOI of the source paper. |
-| `composition` | String | Composition associated with the curve. |
-| `sample_id` | Integer identifier | Sample identifier; use with `SID` to link to `samples`. |
-| `figure_id` | Integer identifier | Identifier used to group curves associated with a figure. |
-| `figure_name` | String | Figure or panel label as recorded in the source paper. |
-| `prop_x` | String | Name of the property represented on the x-axis. |
-| `prop_y` | String | Name of the property represented on the y-axis. |
-| `unit_x` | String | Unit for x-axis values, using the source unit notation. |
-| `unit_y` | String | Unit for y-axis values, using the source unit notation. |
+| `composition` | String | Composition associated with the curve. Missing for 362 rows. |
+| `sample_id` | Integer identifier | Sample identifier; use with `SID` to link to `samples`. Part of `curve_key`. |
+| `figure_id` | Integer identifier | Identifier used to group curves associated with one figure (one `prop_x`/`prop_y`pair per figure). Part of `curve_key`. |
+| `figure_name` | String | Figure or panel label as recorded in the source paper. Never missing. |
+| `prop_x` | String | Name of the property represented on the x-axis. Free-text vocabulary: 146 distinct values (see Appendix B) |
+| `prop_y` | String | Name of the property represented on the y-axis. Free-text vocabulary: 170 distinct values, including synonyms and spelling variants (see Appendix B). |
+| `unit_x` | String | Unit for x-axis values: normalized, mostly SI-based unit strings (38 distinct values; - means dimensionless). |
+| `unit_y` | String | Unit for y-axis values, same notation (69 distinct values). |
 | `x` | JSON array of numbers stored as string | Ordered digitized x-axis values for one curve. |
 | `y` | JSON array of numbers stored as string | Ordered digitized y-axis values corresponding position-by-position to `x`. |
-| `created_at` | Timestamp string | Time the curve record was created; source timestamp includes a timezone. |
-| `updated_at` | Timestamp string | Time the curve record was last updated; source timestamp includes a timezone. |
-| `project_names` | JSON array | Starrydata project labels associated with the curve. |
-| `comments` | String | Source comments or measurement conditions recorded for the curve. |
+| `created_at` | Timestamp string | Time the curve record was created; JavaScript date string in JST (+0900). The processed output adds created_at_utc |
+| `updated_at` | Timestamp string | Time the curve record was last updated; same format. The processed output adds updated_at_utc |
+| `project_names` | JSON array | Starrydata project labels associated with the curve. Never empty. |
+| `comments` | String | Source comments or measurement conditions recorded for the curve. Stored as a JSON-encoded string; some contain nested JSON key-value text (for example temperature or field conditions). See the placeholder note in the profiling results. |
+
+### Flags added in the Tableau and Python Tier 2 outputs
+ 
+Orphan records are **flagged, not dropped**: left joins keep every curve. The Tier 2 outputs (`tier2_curves.csv`, `tier2_points.csv`. The full 34-column list is in the Tableau output header, not in the tracker, so only the flags are specified here.
+ 
+| Field | Type | Definition | Unit | Constraints | Missing value means | Source column | Transformation (cleaning-log step) |
+|---|---|---|---|---|---|---|---|
+| `is_orphan` | Boolean | `TRUE` when the curve's `SID` does not exist in `papers` (the curve cannot be linked to its paper). | n/a | **28** `TRUE` among the 136,679 Tier 2 curves (31 across all 237,313 curves). Must be computed from the join, not hard-coded. | Not expected. | `curves.SID` joined to `papers.SID` | Left join plus a null test on the paper side.  |
+| `n_points` | Integer | Number of points in the curve's `x`/`y` arrays. | Count | 0 for empty-array curves. | Not expected. | `curves.x` | Count of matching `curve_points` rows (Python output).  |
+| `has_points` | Boolean | `TRUE` when the curve has at least one point. | n/a | **2,140** `FALSE` among Tier 2 curves (these are empty arrays; 134,539 are `TRUE`). | Not expected. | `curve_points` joined on `curve_key` | Derived from `n_points`.  |
+ 
+The 28 Tier 2 orphan curves were re-counted from the raw files and match the tracker.
+ 
+All other `curves` columns keep the definitions given in the `curves` table above.
+
+
 
 ## Data Profiling Results 
 
-The following results are from `01_data_profiling.ipynb` and describe the raw tables before cleaning or flattening.
-
+The following results are from `01_data_profiling.ipynb` and describe the raw tables before cleaning or flattening. All were re-checked against the raw CSV files.
+ 
 | Table / field | Profile result | Meaning for use |
 |---|---|---|
 | `papers` | 56,495 rows; 15 columns; `SID` is unique and has no nulls. | `SID` is suitable as the paper-table primary key in this snapshot. |
 | `samples` | 106,331 rows; 9 columns; `sample_id` is unique and has no nulls. | Preserve `SID` with `sample_id` when linking samples to curves. |
 | `curves` | 237,313 rows; 16 columns. | One row represents one digitized curve. |
-| `samples.sample_info` | 72,456 valid JSON objects (68.14%); 31,561 empty objects (29.68%); 2,314 missing values (2.18%); no malformed JSON was found. | Flatten safely; use null for unavailable attributes and retain the sample rows. |
+| Line breaks inside `samples.composition_details` | 6,585 of the 106,331 sample records contain line breaks inside the quoted `composition_details` text (145,606 physical lines in the file); no other column in any of the three files does . | Quoted text qualifiers must be honoured by every reader. Parsed correctly by pandas and Tableau Prep. Corrects the 06 Nov statement of "0 line breaks inside fields". |
+| Row counts in Tableau Prep | Each CSV ends with an extra blank line (`\n\n`). pandas skips it; Tableau Prep reads it as one all-empty row and shows 56,496 / 106,332 / 237,314 rows until it is filtered (tracker O27). | The counts above are pandas counts. Log the difference wherever the two tools are compared. |
+| `samples.sample_info` | 72,456 valid JSON objects (68.14%); 31,561 empty objects (29.68%); 2,314 missing values (2.18%); no malformed JSON was found. | Flatten safely; use null for unavailable attributes and retain the sample rows. Effective completeness is 68.14%, not 97.82%, because `{}` carries no information. |
 | `samples.composition_details` | 87,433 missing (82.23%). | Keep the field nullable; do not drop samples solely because this optional description is missing. |
-| `curves.comments` | 103,868 missing (43.77%). | Keep the field nullable; do not drop curve measurements solely because comments are absent. |
+| `curves.comments` | 103,868 missing (43.77%). A further 87,594 rows hold the placeholder `"{}"` (an empty JSON object). | Treat both as "no comment": 191,462 rows (80.68%) carry no real comment text. Keep the field nullable; do not drop curve measurements solely because comments are absent. |
 | Referential integrity: `samples` → `papers` | 9 orphan sample rows referencing 3 absent SIDs: `8534`, `8535`, `9026`. | Flag or quarantine these rows before an inner join; document any exclusion. |
 | Referential integrity: `curves` → `papers` | 31 orphan curve rows referencing the same 3 absent SIDs. | Flag or quarantine these rows before an inner join; document any exclusion. |
-
-Other missingness reported by the notebook includes paper `issue` (6.86%), `page` (4.01%), `ISSN` (3.36%), `container_title_short` (2.79%), and `volume` (2.57%). The notebook's key and referential checks report zero missing `SID` values in child tables. These profiling results do not verify that every `x` and `y` cell contains a valid numeric JSON array; that should be checked in the transformation pipeline if those arrays are used as model inputs.
+| `curves.x`, `curves.y` | **Verified:** all 237,313 `x` and `y` cells parse as JSON arrays of numbers (0 failures, no nulls or strings), and `x` and `y` have equal length in every row (0 mismatches). 3,952 curves (1.67%) have empty arrays; 4,561 have a single point; the median curve has 15 points and the maximum is 804. | Safe to parse with `json.loads`. Empty-array curves yield no points and are flagged; single-point curves can be filtered if a model needs at least two points. |
+| `papers.DOI` | 0 missing; 85 rows share 40 duplicated DOIs. | Not a key; use `SID`. |
+| `papers.issued` | 207 papers have no usable date (20 `{}` plus 187 empty-string years); 6,526 are year-only, 24,570 year-month (one of them with the invalid month 0), 25,192 full. Corrects the earlier 6,713 year-only figure (tracker O17). | Keep precision explici; do not force a full date. |
+ 
+Other missingness reported by the notebook:
+ 
+| Table | Column | Missing | % |
+|---|---|---|---|
+| `papers` | `issue` | 3,873 | 6.86 |
+| `papers` | `page` | 2,266 | 4.01 |
+| `papers` | `ISSN` | 1,901 | 3.36 |
+| `papers` | `container_title_short` | 1,575 | 2.79 |
+| `papers` | `volume` | 1,451 | 2.57 |
+| `papers` | `publisher` | 20 | 0.04 |
+| `papers` | `author` | 16 | 0.03 |
+| `papers` | `container_title` | 1 | 0.00 |
+| `samples` | `composition` | 191 | 0.18 |
+| `samples` | `sample_name` | 27 | 0.03 |
+| `curves` | `composition` | 362 | 0.15 |
+ 
+All other columns have no missing values. The notebook's key and referential checks report zero missing `SID` values in child tables.
 
 ## Appendix A: Flattened `sample_info` descriptor columns
 
@@ -269,8 +315,10 @@ The raw `sample_info` objects contain 138 distinct descriptor keys; after trimmi
 | `synthesis` | 1 | 1 | 1 |
 ## Appendix B: Property and unit vocabulary in `curves`
 
-`prop_x` and `prop_y` are free-text names entered during digitization, so the same quantity can appear under several names (for example `Seebeck coefficient`, `thermopower`, `Thermopower` and `S`; or `Electrical resistivity`, `log(Electrical resistivity)`, `ln(Electrical resistivity)` and `Log(row)`). Consolidate synonyms before analysis. Most frequent `prop_y` values with their most common unit:
-
+`prop_x` and `prop_y` are free-text names entered during digitization, so the same quantity can appear under several names (for example `Seebeck coefficient`, `thermopower`, `Thermopower` and `S`; or `Electrical resistivity`, `log(Electrical resistivity)`, `ln(Electrical resistivity)` and `Log(row)`). The tables below are generated by the script.
+ 
+### B.1 Most frequent `prop_y` values with their most common unit
+ 
 | `prop_y` | Most common `unit_y` | Curves |
 |---|---|---|
 | `Seebeck coefficient` | `V*K^(-1)` | 38,557 |
@@ -286,14 +334,16 @@ The raw `sample_info` objects contain 138 distinct descriptor keys; after trimmi
 | `Lattice thermal conductivity` | `W*m^(-1)*K^(-1)` | 6,876 |
 | `Dielectric loss (tanδ)` | `-` | 5,298 |
 | `Carrier concentration` | `m^(-3)` | 2,045 |
+| `log(Electrical conductivity)` | `S*m^(-1)` | 1,989 |
 | `magnetization_per_volume` | `A/m` | 1,564 |
 | `Magnetization` | `T` | 1,511 |
 | `Carrier mobility` | `m^2*V^(-1)*s^(-1)` | 1,378 |
 | `Coulombic efficiency` | `-` | 958 |
 | `Hall coefficient` | `m^3*C^(-1)` | 713 |
-
-Most frequent `prop_x` values with their most common unit:
-
+| `Electronic thermal conductivity` | `W*m^(-1)*K^(-1)` | 653 |
+ 
+### B.2 Most frequent `prop_x` values with their most common unit
+ 
 | `prop_x` | Most common `unit_x` | Curves |
 |---|---|---|
 | `Temperature` | `K` | 174,775 |
@@ -305,11 +355,85 @@ Most frequent `prop_x` values with their most common unit:
 | `Magnetic field` | `T` | 4,819 |
 | `C rate` | `-` | 2,729 |
 | `Time` | `s` | 2,240 |
-
+| `Areal capacity` | `A*s/m**2` | 906 |
+ 
 Four `prop_y` values carry more than one unit (`Hall mobility`, `log(Electrical resistivity)`, `logσT`, `magnetization_per_weight`), so check `unit_y` per row.
+ 
+### B.3 Property variants excluded from Tier 2 (reported as a finding)
+ 
+**These names are excluded from Tier 2 and reported as a finding; none of them is merged, renamed or converted (D12, Final).** Tier 2 matches the six core names exactly (D4). The table lists the near-matches found among the 159,593 thermoelectric curves: 31 names on 11,295 curves. The "Reading" column is a suggestion only; deciding whether a name really is the same quantity needs a domain check, and a unit label that looks wrong is reported as recorded.
+ 
+| Core property | Excluded name | Curves | Recorded `unit_y` | Reading |
+|---|---|---|---|---|
+| Seebeck coefficient | `thermopower` | 552 | `V*K^(-1)` | Candidate synonym |
+| Seebeck coefficient | `S` | 71 | `V/K` | Candidate synonym (symbol only) |
+| Seebeck coefficient | `Thermopower` | 54 | `kg*m**2/A/s**3` | Candidate synonym; the unit is volts, not V/K |
+| Seebeck coefficient | `Calculated Seebeck coefficient` | 6 | `V/K` | Calculated values, different provenance |
+| Seebeck coefficient | `Seebeck  coefficient ` (double space, trailing space) | 6 | `V` | Spelling variant; unit is volts, not V/K |
+| Seebeck coefficient | `Seebeck coefficient at 550 K` | 1 | `m**2*kg/A/s**3/K` | Name carries a condition |
+| Seebeck coefficient | `zero-B thermopower` | 1 | `m**2*kg/A/s**3/K` | Name carries a condition |
+| Electrical conductivity | `log(Electrical conductivity)` | 1,689 | `S*m^(-1)` | Log-transformed, but labelled with a linear unit (O24) |
+| Electrical conductivity | `ln(Electrical conductivity)` | 133 | `S*m^(-1)` | Log-transformed, linear unit label |
+| Electrical conductivity | `Conductivity` | 16 | `S/m` | Candidate synonym |
+| Electrical conductivity | `σT` | 6 | `A**2*s**3*K/kg/m**3` | Conductivity times temperature |
+| Electrical conductivity | `Electrical conductivity0` | 5 | `A**2*s**2/kg/m**2` | Unclear name; different unit string |
+| Electrical conductivity | `log(sigma)` | 4 | `A**2*s**3/kg/m**3` | Log-transformed |
+| Electrical conductivity | `Surface Conductivity` | 3 | `ohm^(-1)` | Different quantity |
+| Electrical conductivity | `conductivity` | 2 | `-` | Candidate synonym; unit recorded as `-` |
+| Electrical resistivity | `log(Electrical resistivity)` | 189 | `ohm*m` | Log-transformed, linear unit label |
+| Electrical resistivity | `ln(Electrical resistivity)` | 150 | `ohm*m` | Log-transformed, linear unit label |
+| Electrical resistivity | `Log(row)` | 15 | `ohm*m` | Log-transformed ("row" for the symbol ρ) |
+| Electrical resistivity | `Resistivity` | 14 | `ohm*m^-1` | Candidate synonym; unit written as the inverse |
+| Electrical resistivity | `Contact resistivity` | 6 | `ohm*m^2` | Different quantity |
+| Thermal conductivity | `Lattice thermal conductivity` | 6,829 | `W*m^(-1)*K^(-1)` | Component, different quantity |
+| Thermal conductivity | `Electronic thermal conductivity` | 647 | `W*m^(-1)*K^(-1)` | Component, different quantity |
+| Thermal conductivity | `total thermal conductivity` | 134 | `W*m^(-1)*K^(-1)` | Candidate synonym |
+| Thermal conductivity | `Carrier thermal conductivity` | 102 | `W*m^(-1)*K^(-1)` | Component |
+| Thermal conductivity | `electron thermal conductivity` | 99 | `W*m^(-1)*K^(-1)` | Component (electronic) |
+| Thermal conductivity | `Lattice+bipolar thermal conductivity` | 12 | `W*m^(-1)*K^(-1)` | Component |
+| Thermal conductivity | `Electrical thermal conductivity` | 3 | `W*m^(-1)*K^(-1)` | Component (electronic) |
+| ZT | `Figure of merit Z` | 501 | `K^(-1)` | Unit indicates Z, not ZT: different quantity or mislabelled |
+| ZT | `Figure of merit` | 40 | `K^(-1)` | As above |
+| ZT | `Figure of merit Zt` | 4 | `K^(-1)` | Name suggests ZT, unit suggests Z |
+| ZT | `Figure of merit Z 1000` | 1 | `K^(-1)` | As above |
+ 
+No name variants were found for `Power factor`.
+Four `prop_y` values carry more than one unit (`Hall mobility`, `log(Electrical resistivity)`, `logσT`, `magnetization_per_weight`), so check `unit_y` per row.
+
+## Reproducibility
+ 
+`dictionary_appendix_counts.py` reads the three raw CSVs (never modifies them) and regenerates every count in Appendix A and B and the verification figures quoted in the field specification and profiling sections.
+ 
+```
+python dictionary_appendix_counts.py --data-dir data/raw --out-dir docs/evidence/dictionary_counts
+```
+ 
+| Output | Content |
+|---|---|
+| `summary.json` | Headline figures (key counts 138 / 128 / 108, Tier 2 and `curve_points` counts, UTC reference values, `issued` precision counts) and the SHA-256 of each raw file |
+| `appendix_a.md`, `appendix_a_descriptors.csv` | Appendix A tables and the same data as CSV |
+| `appendix_a_merge_report.csv`, `sample_info_merge_conflicts.csv` | How often variant keys co-occur per column, and the 43 logged conflicts |
+| `appendix_b.md`, `appendix_b_prop_y.csv`, `appendix_b_prop_x.csv` | Property and unit vocabulary |
+| `tier2_excluded_variants.csv` | The data behind Appendix B.3 |
+| `unit_notations.csv` | One unit written in several notations (for example siemens per metre in three), used as evidence in the FAIR assessment (I2) |
+ 
 
 ## References
 
 - Figshare snapshot: <https://doi.org/10.6084/m9.figshare.34036677.v1>
 - Starrydata dataset documentation and field descriptions: <https://starrydata.github.io/hp/en/manual/download/>
 - Local source files used: `README(2).md`, `db_snapshot(1).txt`, and the three CSV files.
+- Y. Katsura, M. Kumagai, T. Mato, et al., "Starrydata: from published plots to shared materials data", *Science and Technology of Advanced Materials: Methods* 5(1), 2506976 (2025). <https://doi.org/10.1080/27660400.2025.2506976>
+- Original publications: the DOIs in `starrydata_papers.csv` (the `DOI` column is preserved in all outputs).
+- Starrydata dataset documentation and field descriptions: <https://starrydata.github.io/hp/en/manual/download/>
+- Licence: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). 
+- Canonical file names: `starrydata_papers.csv`, `starrydata_samples.csv`, `starrydata_curves.csv`, `README.md`, `db_snapshot.txt`, `01_data_profiling.ipynb`, `dictionary_appendix_counts.py`.
+
+SHA-256 of the raw files:
+ 
+| File | SHA-256 |
+|---|---|
+| `starrydata_papers.csv` | `b82ff398b28c15e42aa6ef6de1df9c26f3935a00dd9c76925e9dbbf1a6b4e222` |
+| `starrydata_samples.csv` | `744b1b496368c0ed24231073ae324a2ef302076801331abb0f9c69dcf9754f55` |
+| `starrydata_curves.csv` | `411515829de82041809e112a30d55c676567972c80a95965c37feb1b1ef41c96` |
+| `README.md` | `0b8168491a702ed2f98e0771f15eb9949fd290661201d8c63cfaa08d62e2d55e` |
