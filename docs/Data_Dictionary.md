@@ -4,7 +4,7 @@
 **Source DOI:** [10.6084/m9.figshare.34036677.v1](https://doi.org/10.6084/m9.figshare.34036677.v1)  
 **Source files:** `starrydata_papers.csv`, `starrydata_samples.csv`, `starrydata_curves.csv`  
 **Prepared by:** Data-Managers, SRH University of Applied Sciences Heidelberg  
-**Version:** *need to update - discussion
+**Version:** v0.2, 2026-11-07
 
 ## Scope and assumptions
 
@@ -361,44 +361,54 @@ Four `prop_y` values carry more than one unit (`Hall mobility`, `log(Electrical 
  
 ### B.3 Property variants excluded from Tier 2 (reported as a finding)
  
-**These names are excluded from Tier 2 and reported as a finding; none of them is merged, renamed or converted (D12, Final).** Tier 2 matches the six core names exactly (D4). The table lists the near-matches found among the 159,593 thermoelectric curves: 31 names on 11,295 curves. The "Reading" column is a suggestion only; deciding whether a name really is the same quantity needs a domain check, and a unit label that looks wrong is reported as recorded.
+**These names are excluded from Tier 2 and reported as a finding; none of them is merged, renamed or converted.** Tier 2 matches the six core names exactly. The table lists the near-matches found among the 159,593 thermoelectric curves: 31 names on 11,295 curves. The "Reading" column is a suggestion only; deciding whether a name really is the same quantity needs a domain check, and a unit label that looks wrong is reported as recorded.
+ 
+**Group 1: same quantity under another name (12 names, 861 curves).** These curves measure the same property as one of the six core names, but are written differently or carry a wrong unit. They are the candidates for a later merge; a merge needs unit conversion and a check per variant.
  
 | Core property | Excluded name | Curves | Recorded `unit_y` | Reading |
 |---|---|---|---|---|
-| Seebeck coefficient | `thermopower` | 552 | `V*K^(-1)` | Candidate synonym |
-| Seebeck coefficient | `S` | 71 | `V/K` | Candidate synonym (symbol only) |
-| Seebeck coefficient | `Thermopower` | 54 | `kg*m**2/A/s**3` | Candidate synonym; the unit is volts, not V/K |
-| Seebeck coefficient | `Calculated Seebeck coefficient` | 6 | `V/K` | Calculated values, different provenance |
-| Seebeck coefficient | `Seebeck  coefficient ` (double space, trailing space) | 6 | `V` | Spelling variant; unit is volts, not V/K |
-| Seebeck coefficient | `Seebeck coefficient at 550 K` | 1 | `m**2*kg/A/s**3/K` | Name carries a condition |
-| Seebeck coefficient | `zero-B thermopower` | 1 | `m**2*kg/A/s**3/K` | Name carries a condition |
-| Electrical conductivity | `log(Electrical conductivity)` | 1,689 | `S*m^(-1)` | Log-transformed, but labelled with a linear unit (O24) |
-| Electrical conductivity | `ln(Electrical conductivity)` | 133 | `S*m^(-1)` | Log-transformed, linear unit label |
-| Electrical conductivity | `Conductivity` | 16 | `S/m` | Candidate synonym |
+| Seebeck coefficient | `thermopower` | 552 | `V*K^(-1)` | Another name for the Seebeck coefficient |
+| Seebeck coefficient | `S` | 71 | `V/K` | Symbol only; another name for the Seebeck coefficient |
+| Seebeck coefficient | `Thermopower` | 54 | `kg*m**2/A/s**3` | Another name for the Seebeck coefficient; **unit error**, `kg*m**2/A/s**3` is the volt, not V/K |
+| Seebeck coefficient | `Calculated Seebeck coefficient` | 6 | `V/K` | Same quantity, but calculated rather than measured |
+| Seebeck coefficient | `Seebeck  coefficient` | 6 | `V` | Spelling variant (double space, trailing space); unit is volts, not V/K |
+| Seebeck coefficient | `Seebeck coefficient at 550 K` | 1 | `m**2*kg/A/s**3/K` | Same quantity; the name carries a condition |
+| Seebeck coefficient | `zero-B thermopower` | 1 | `m**2*kg/A/s**3/K` | Same quantity; the name carries a condition (zero magnetic field) |
+| Electrical conductivity | `Conductivity` | 16 | `S/m` | Another name for the electrical conductivity |
+| Electrical conductivity | `conductivity` | 2 | `-` | Another name for the electrical conductivity; **unit error**, unit recorded as `-` |
+| Electrical resistivity | `Resistivity` | 14 | `ohm*m^-1` | Another name for the electrical resistivity; **unit error**, written `ohm*m^-1` instead of `ohm*m` |
+| Thermal conductivity | `total thermal conductivity` | 134 | `W*m^(-1)*K^(-1)` | Another name for the thermal conductivity |
+| ZT | `Figure of merit Zt` | 4 | `K^(-1)` | Name says ZT, but the unit `K^(-1)` belongs to Z; **unit error** |
+ 
+**Group 2: related quantity, not the same (19 names, 10,434 curves).** These are logarithms, components, products or different quantities that only look like a core property. They must not be merged into it.
+ 
+| Core property | Excluded name | Curves | Recorded `unit_y` | Reading |
+|---|---|---|---|---|
+| Electrical conductivity | `log(Electrical conductivity)` | 1,689 | `S*m^(-1)` | Logarithm of the quantity, labelled with a linear unit |
+| Electrical conductivity | `ln(Electrical conductivity)` | 133 | `S*m^(-1)` | Natural logarithm, labelled with a linear unit |
 | Electrical conductivity | `σT` | 6 | `A**2*s**3*K/kg/m**3` | Conductivity times temperature |
-| Electrical conductivity | `Electrical conductivity0` | 5 | `A**2*s**2/kg/m**2` | Unclear name; different unit string |
-| Electrical conductivity | `log(sigma)` | 4 | `A**2*s**3/kg/m**3` | Log-transformed |
-| Electrical conductivity | `Surface Conductivity` | 3 | `ohm^(-1)` | Different quantity |
-| Electrical conductivity | `conductivity` | 2 | `-` | Candidate synonym; unit recorded as `-` |
-| Electrical resistivity | `log(Electrical resistivity)` | 189 | `ohm*m` | Log-transformed, linear unit label |
-| Electrical resistivity | `ln(Electrical resistivity)` | 150 | `ohm*m` | Log-transformed, linear unit label |
-| Electrical resistivity | `Log(row)` | 15 | `ohm*m` | Log-transformed ("row" for the symbol ρ) |
-| Electrical resistivity | `Resistivity` | 14 | `ohm*m^-1` | Candidate synonym; unit written as the inverse |
-| Electrical resistivity | `Contact resistivity` | 6 | `ohm*m^2` | Different quantity |
-| Thermal conductivity | `Lattice thermal conductivity` | 6,829 | `W*m^(-1)*K^(-1)` | Component, different quantity |
-| Thermal conductivity | `Electronic thermal conductivity` | 647 | `W*m^(-1)*K^(-1)` | Component, different quantity |
-| Thermal conductivity | `total thermal conductivity` | 134 | `W*m^(-1)*K^(-1)` | Candidate synonym |
-| Thermal conductivity | `Carrier thermal conductivity` | 102 | `W*m^(-1)*K^(-1)` | Component |
-| Thermal conductivity | `electron thermal conductivity` | 99 | `W*m^(-1)*K^(-1)` | Component (electronic) |
-| Thermal conductivity | `Lattice+bipolar thermal conductivity` | 12 | `W*m^(-1)*K^(-1)` | Component |
-| Thermal conductivity | `Electrical thermal conductivity` | 3 | `W*m^(-1)*K^(-1)` | Component (electronic) |
-| ZT | `Figure of merit Z` | 501 | `K^(-1)` | Unit indicates Z, not ZT: different quantity or mislabelled |
-| ZT | `Figure of merit` | 40 | `K^(-1)` | As above |
-| ZT | `Figure of merit Zt` | 4 | `K^(-1)` | Name suggests ZT, unit suggests Z |
-| ZT | `Figure of merit Z 1000` | 1 | `K^(-1)` | As above |
+| Electrical conductivity | `Electrical conductivity0` | 5 | `A**2*s**2/kg/m**2` | Unclear name; the unit does not match siemens per metre |
+| Electrical conductivity | `log(sigma)` | 4 | `A**2*s**3/kg/m**3` | Logarithm of the quantity |
+| Electrical conductivity | `Surface Conductivity` | 3 | `ohm^(-1)` | Different quantity (surface, not bulk) |
+| Electrical resistivity | `log(Electrical resistivity)` | 189 | `ohm*m` | Logarithm of the quantity, labelled with a linear unit |
+| Electrical resistivity | `ln(Electrical resistivity)` | 150 | `ohm*m` | Natural logarithm, labelled with a linear unit |
+| Electrical resistivity | `Log(row)` | 15 | `ohm*m` | Logarithm of the resistivity ("row" for the symbol ρ) |
+| Electrical resistivity | `Contact resistivity` | 6 | `ohm*m^2` | Different quantity (contact, not bulk) |
+| Thermal conductivity | `Lattice thermal conductivity` | 6,829 | `W*m^(-1)*K^(-1)` | Component of the thermal conductivity |
+| Thermal conductivity | `Electronic thermal conductivity` | 647 | `W*m^(-1)*K^(-1)` | Component of the thermal conductivity |
+| Thermal conductivity | `Carrier thermal conductivity` | 102 | `W*m^(-1)*K^(-1)` | Component of the thermal conductivity |
+| Thermal conductivity | `electron thermal conductivity` | 99 | `W*m^(-1)*K^(-1)` | Component of the thermal conductivity (electronic) |
+| Thermal conductivity | `Lattice+bipolar thermal conductivity` | 12 | `W*m^(-1)*K^(-1)` | Component of the thermal conductivity |
+| Thermal conductivity | `Electrical thermal conductivity` | 3 | `W*m^(-1)*K^(-1)` | Component of the thermal conductivity (electronic) |
+| ZT | `Figure of merit Z` | 501 | `K^(-1)` | Z = ZT / T; unit `K^(-1)` matches Z, so a different quantity from ZT |
+| ZT | `Figure of merit` | 40 | `K^(-1)` | Unit `K^(-1)` points to Z, so a different quantity from ZT |
+| ZT | `Figure of merit Z 1000` | 1 | `K^(-1)` | As above, with a condition in the name |
+ 
+No name variants were found for `Power factor`.
  
 No name variants were found for `Power factor`.
 Four `prop_y` values carry more than one unit (`Hall mobility`, `log(Electrical resistivity)`, `logσT`, `magnetization_per_weight`), so check `unit_y` per row.
+**x-axis variants.** 141,910 thermoelectric curves carry one of the six exact core names; 136,679 are kept in Tier 2 because their `prop_x` is `Temperature`, and **5,231 are excluded by the x-axis rule**: `Inverse temperature` (3,693), `Carrier concentration` (701), `1000/T` (193), `T` (191, a candidate synonym of `Temperature`), `Electrical conductivity` (43), and 62 further `prop_x` names on 410 curves.
 
 ## Reproducibility
  
