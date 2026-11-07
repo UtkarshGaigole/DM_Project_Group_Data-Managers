@@ -41,14 +41,51 @@ TIER2_PROPERTIES = {
 
 # The seven-column point contract. Confirm the exact order/names against the
 # reference export when it is supplied.
-TIER2_POINT_COLUMNS = [
-    "figure_id",
+TIER2_CURVE_COLUMNS = [
+    "n_points",
+    "has_points",
+    "issued_precision",
+    "issued_year",
+    "issued_month",
+    "issued_day",
+    "sample_name",
+    "composition_details",
+    "sample_info",
+    "SID",
+    "DOI",
+    "composition",
     "sample_id",
+    "figure_id",
+    "figure_name",
+    "prop_x",
+    "prop_y",
+    "unit_x",
+    "unit_y",
+    "created_at_utc",
+    "updated_at_utc",
+    "project_names",
+    "comments",
+    "URL",
+    "author",
+    "title",
+    "is_orphan",
+    "container_title",
+    "container_title_short",
+    "volume",
+    "issue",
+    "page",
+    "ISSN",
+    "publisher",
+]
+
+TIER2_POINT_COLUMNS = [
+    "sample_id",
+    "figure_id",
+    "prop_y",
+    "unit_y",
     "point_index",
     "x_value",
     "y_value",
-    "prop_y",
-    "unit_y",
 ]
 
 IDENTIFIER_COLUMNS = {
@@ -334,6 +371,7 @@ def build_tier2_outputs(
     tier2_curves["n_points"] = tier2_curves["n_points"].fillna(0).astype("int64")
     tier2_curves["has_points"] = tier2_curves["n_points"].gt(0)
     tier2_curves = tier2_curves.drop(columns=["x", "y"], errors="ignore")
+    tier2_curves = tier2_curves[TIER2_CURVE_COLUMNS]
 
     # Add property metadata to points. The curve table supplies one row per key.
     metadata_columns = ["figure_id", "sample_id", "prop_y", "unit_y"]
