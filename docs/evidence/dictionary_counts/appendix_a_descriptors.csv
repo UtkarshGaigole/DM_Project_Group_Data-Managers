@@ -1,0 +1,109 @@
+output_column,group,source_keys_merged,samples_with_key,samples_with_value,top_project_where_populated
+Anode active material,Battery descriptors,1,14292,12165,BatteryMaterials
+Solute 1,Battery descriptors,1,14291,12985,BatteryMaterials
+Solvent 1,Battery descriptors,1,14291,13711,BatteryMaterials
+Cathode active material,Battery descriptors,1,14254,9152,BatteryMaterials
+Cathode conductive agent,Battery descriptors,1,14176,8190,BatteryMaterials
+Cathode binder 1,Battery descriptors,1,14172,8164,BatteryMaterials
+Cathode areal density (cathode loading),Battery descriptors,1,14037,7197,BatteryMaterials
+Solvent 2,Battery descriptors,1,13936,9721,BatteryMaterials
+Solute 2,Battery descriptors,1,13817,5625,BatteryMaterials
+Ratio of electrolyte to cathode active material,Battery descriptors,1,13795,2195,BatteryMaterials
+Cathode binder 2,Battery descriptors,1,13775,369,BatteryMaterials
+Anode binder 1,Battery descriptors,1,13770,1353,BatteryMaterials
+Solvent 3,Battery descriptors,1,13756,1070,BatteryMaterials
+Solute 3,Battery descriptors,1,13740,159,BatteryMaterials
+Anode binder 2,Battery descriptors,1,13729,21,BatteryMaterials
+Cathode volumetric density,Battery descriptors,1,13727,0,
+Cathode additive 1,Battery descriptors,1,13462,4014,BatteryMaterials
+Anode conductive agent,Battery descriptors,1,13449,1321,BatteryMaterials
+Cathode additive 2,Battery descriptors,1,13427,217,BatteryMaterials
+Anode additive 1,Battery descriptors,1,13423,399,BatteryMaterials
+Anode additive 2,Battery descriptors,1,13412,25,BatteryMaterials
+Cathode areal capacity,Battery descriptors,1,13406,0,
+Separator,Battery descriptors,1,10820,8106,BatteryMaterials
+Cathode current collector,Battery descriptors,1,10765,1427,BatteryMaterials
+Cell type,Battery descriptors,1,10708,5663,BatteryMaterials
+Lower voltage limit,Battery descriptors,1,10648,3012,BatteryMaterials
+Upper voltage limit,Battery descriptors,1,10637,2983,BatteryMaterials
+Electrolyte additive 1,Battery descriptors,1,10380,2779,BatteryMaterials
+Current density,Battery descriptors,1,10366,2344,BatteryMaterials
+Anode current collector,Battery descriptors,1,10337,2044,BatteryMaterials
+Anode areal capacity,Battery descriptors,1,10306,2118,BatteryMaterials
+Coulombic efficiency,Battery descriptors,1,10283,355,BatteryMaterials
+Electrolyte additive 2,Battery descriptors,1,10279,31,BatteryMaterials
+N/P ratio|A/C ratio,Battery descriptors,2,10278,4,BatteryMaterials
+Electrolyte additive 3,Battery descriptors,1,9958,0,
+Counter electrode,Battery descriptors,1,8096,1859,BatteryMaterials
+Reference electrode,Battery descriptors,1,8076,960,BatteryMaterials
+Scan rate,Battery descriptors,1,8061,0,
+Working electrode,Battery descriptors,1,8061,426,BatteryMaterials
+Hysteresis,Battery descriptors,1,2844,0,
+Cathode catalyst material,Battery descriptors,1,511,0,
+Catalyst loading,Battery descriptors,1,406,0,
+Redox mediator in electrolyte,Battery descriptors,1,353,0,
+Cathode additive,Battery descriptors,1,329,0,
+Redox mediator in cathode,Battery descriptors,1,329,0,
+Chemical composition,Dielectric-project descriptors,1,1656,81,DielectricMaterials
+Final product,Dielectric-project descriptors,1,1656,60,DielectricMaterials
+Measurement method1,Dielectric-project descriptors,1,1656,99,DielectricMaterials
+Measurement method2,Dielectric-project descriptors,1,1656,98,DielectricMaterials
+Measurement method3,Dielectric-project descriptors,1,1656,97,DielectricMaterials
+Sample form,Dielectric-project descriptors,1,1656,31,DielectricMaterials
+Sintering method,Dielectric-project descriptors,1,1656,54,DielectricMaterials
+Sintering temperature,Dielectric-project descriptors,1,1656,95,DielectricMaterials
+Sintering time,Dielectric-project descriptors,1,1656,88,DielectricMaterials
+Starting material,Dielectric-project descriptors,1,1656,96,DielectricMaterials
+Synthesis method1,Dielectric-project descriptors,1,1656,98,DielectricMaterials
+Synthesis method2,Dielectric-project descriptors,1,1656,65,DielectricMaterials
+Synthesis method3,Dielectric-project descriptors,1,1656,47,DielectricMaterials
+DataType,General and thermoelectric sample descriptors,2,54832,48721,ThermoelectricMaterials
+Form,General and thermoelectric sample descriptors,1,54760,40355,ThermoelectricMaterials
+FabricationProcess,General and thermoelectric sample descriptors,1,53648,31673,MagneticMaterials
+Purity,General and thermoelectric sample descriptors,1,52732,20629,MagneticMaterials
+RelativeDensity,General and thermoelectric sample descriptors,2,52644,2446,ThermoelectricMaterials
+GrainSize,General and thermoelectric sample descriptors,2,52605,1508,ThermoelectricMaterials
+MaterialFamily,General and thermoelectric sample descriptors,7,37500,22140,ThermoelectricMaterials
+ElectricalMeasurement,General and thermoelectric sample descriptors,2,36705,14420,ThermoelectricMaterials
+ThermalMeasurement,General and thermoelectric sample descriptors,3,36581,10201,ThermoelectricMaterials
+Other,General and thermoelectric sample descriptors,1,26422,1,ThermoelectricMaterials
+DifferentialThermalAnalyzer,General and thermoelectric sample descriptors,2,26294,23,ThermoelectricMaterials
+laser flash and different thermal analyzer,General and thermoelectric sample descriptors,1,26294,2,ThermoelectricMaterials
+LaserFlash,General and thermoelectric sample descriptors,1,26293,16,ThermoelectricMaterials
+FabricationProcess 2,General and thermoelectric sample descriptors,1,18127,1821,ThermoelectricMaterials
+FabricationProcess 3,General and thermoelectric sample descriptors,1,17683,133,ThermoelectricMaterials
+Composition conversion,General and thermoelectric sample descriptors,1,3270,2,GeneralDB
+Measurement axis,General and thermoelectric sample descriptors,1,3270,2,GeneralDB
+AbsoluteDensity,General and thermoelectric sample descriptors,1,635,133,LowThermalConductivityMaterials
+ClosedPorosity,General and thermoelectric sample descriptors,1,635,0,
+PoreSize,General and thermoelectric sample descriptors,1,635,25,LowThermalConductivityMaterials
+Porosity,General and thermoelectric sample descriptors,1,635,93,LowThermalConductivityMaterials
+OrganicMaterialFamily,General and thermoelectric sample descriptors,2,342,342,OrganicThermoelectricMaterials
+OrganicFabricationProcess,General and thermoelectric sample descriptors,2,325,313,OrganicThermoelectricMaterials
+OrganicFabricationProcess 2,General and thermoelectric sample descriptors,1,53,49,OrganicThermoelectricMaterials
+composition type,"Hypermaterial, condensed-matter and one-off descriptors",1,1103,599,Hypermaterial
+direction,"Hypermaterial, condensed-matter and one-off descriptors",1,1103,43,Hypermaterial
+lattice parameter,"Hypermaterial, condensed-matter and one-off descriptors",1,1103,47,Hypermaterial
+sintering temperature,"Hypermaterial, condensed-matter and one-off descriptors",1,1103,24,Hypermaterial
+annealing condition,"Hypermaterial, condensed-matter and one-off descriptors",1,1095,386,Hypermaterial
+other sample process info,"Hypermaterial, condensed-matter and one-off descriptors",1,1092,616,Hypermaterial
+sample info,"Hypermaterial, condensed-matter and one-off descriptors",1,1092,387,Hypermaterial
+AC/QC type,"Hypermaterial, condensed-matter and one-off descriptors",1,1073,1030,Hypermaterial
+measurement condition,"Hypermaterial, condensed-matter and one-off descriptors",1,1026,511,Hypermaterial
+other sample process info 2,"Hypermaterial, condensed-matter and one-off descriptors",1,956,33,Hypermaterial
+Applied field,"Hypermaterial, condensed-matter and one-off descriptors",1,680,9,Hypermaterial
+2D iron-tetracyanoquinodimethane,"Hypermaterial, condensed-matter and one-off descriptors",1,156,1,CondensedMatter
+6: other sample process info,"Hypermaterial, condensed-matter and one-off descriptors",1,114,1,Hypermaterial
+comment,"Hypermaterial, condensed-matter and one-off descriptors",1,12,12,ThermoelectricMaterials
+Maximum power,"Hypermaterial, condensed-matter and one-off descriptors",2,2,2,ThermoelectricMaterials
+Module operated temperature,"Hypermaterial, condensed-matter and one-off descriptors",1,2,2,ThermoelectricMaterials
+Peak efficiency,"Hypermaterial, condensed-matter and one-off descriptors",1,2,2,ThermoelectricMaterials
+Mn15Si26[001],"Hypermaterial, condensed-matter and one-off descriptors",1,1,1,ThermoelectricMaterials
+Note,"Hypermaterial, condensed-matter and one-off descriptors",1,1,1,ThermoelectricMaterials
+synthesis,"Hypermaterial, condensed-matter and one-off descriptors",1,1,1,ThermoelectricMaterials
+MagneticMeasurement,Magnetic descriptors,1,16352,16121,MagneticMaterials
+Coercivity,Magnetic descriptors,3,15822,1414,MagneticMaterials
+Remanence magnetization,Magnetic descriptors,4,15822,915,MagneticMaterials
+Saturation magnetization,Magnetic descriptors,4,15822,1188,MagneticMaterials
+Measurement temperature,Magnetic descriptors,5,15821,11877,MagneticMaterials
+magnetic field,Magnetic descriptors,2,15821,863,MagneticMaterials

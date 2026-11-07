@@ -1,0 +1,171 @@
+prop_y,curves,most_common_unit,distinct_units
+Seebeck coefficient,38557,V*K^(-1),1
+Thermal conductivity,25799,W*m^(-1)*K^(-1),1
+Voltage,23652,V,1
+Electrical resistivity,23100,ohm*m,1
+Electrical conductivity,22260,ohm^(-1)*m^(-1),1
+ZT,20924,-,1
+Power factor,18195,W*m^(-1)*K^(-2),1
+magnetization_per_weight,13809,emu*g^(-1),3
+Dielectric permittivity (ε’),9997,-,1
+Discharge capacity,9796,A*s/kg,1
+Lattice thermal conductivity,6876,W*m^(-1)*K^(-1),1
+Dielectric loss (tanδ),5298,-,1
+Carrier concentration,2045,m^(-3),1
+log(Electrical conductivity),1989,S*m^(-1),1
+magnetization_per_volume,1564,A/m,1
+Magnetization,1511,T,1
+Carrier mobility,1378,m^2*V^(-1)*s^(-1),1
+Coulombic efficiency,958,-,1
+Hall coefficient,713,m^3*C^(-1),1
+Electronic thermal conductivity,653,W*m^(-1)*K^(-1),1
+Dielectric loss (unknown),607,-,1
+thermopower,559,V*K^(-1),1
+Figure of merit Z,501,K^(-1),1
+Hall mobility,495,m^2*V^(-1)*s^(-1),2
+Magnetic susceptibility_per_weight,449,emu/g,1
+polarization,438,T,1
+Dielectric loss (ε’’),423,-,1
+Current density,402,A/m**2,1
+Strain,337,-,1
+Temperature Coefficient of Resistivity,319,1/K,1
+absorbance,202,-,1
+log(Electrical resistivity),190,ohm*m,2
+magnetic susceptibility,172,A*m**2/mol,1
+Discharge capacity (based on sulfur weight),165,A*s/kg,1
+ln(Electrical resistivity),157,ohm*m,1
+total thermal conductivity,149,W*m^(-1)*K^(-1),1
+ln(Electrical conductivity),148,S*m^(-1),1
+Specific heat,148,J*mol^(-1)*K^(-2),1
+Log(row),136,ohm*m,1
+lnσT,121,A**2*s**3*K/kg/m**3,1
+logσT,113,S*m^(-1)*K,2
+Carrier thermal conductivity,102,W*m^(-1)*K^(-1),1
+electron thermal conductivity,99,W*m^(-1)*K^(-1),1
+Thermal diffusivity,88,m**2/s,1
+Cp,80,J*mol^-1*K^-1,1
+Magnetic susceptibility_per mol,76,A*m**2/mol,1
+Electric current,72,A,1
+S,72,V/K,1
+Magnetic Moment,71,A*m**2,1
+Resistance,64,ohm,1
+Coercivity Field,61,A/m,1
+Hysteresis,59,V,1
+-,56,-,1
+Thermopower,54,kg*m**2/A/s**3,1
+Displacement,49,m,1
+magnetization_Wb*m/kg,42,Wb*m/kg,1
+Inverse magnetic susceptibility,41,emu^(-1)*g,1
+Specific heat_K,40,J*mol^(-1)*K^(-1),1
+Figure of merit,40,K^(-1),1
+Lattice contribution,35,W*m^(-1)*K^(-1),1
+Magnetic field,32,T,1
+phonon thermal conductance,31,W*m^(-1)*K^(-1),1
+Temperature,27,K,1
+Electronic contribution,27,W*m^(-1)*K^(-1),1
+inverse magnetic susceptibility_mol,26,mol/A/m**2,1
+Specific heat capacity,26,J*mol^(-1)*K^(-1),1
+surface resistance,24,ohm,1
+log(sigma),23,A**2*s**3/kg/m**3,1
+Mobility,22,A*s**3/kg,1
+hall density,20,1/m**3,1
+RH,20,ohm*m*T^(-1),1
+Specific heat capacity (J/gK),19,-,1
+Thermoelectric power,19,V*K^(-1),1
+Effective thermal conductivity,17,kg*m/s**3/K,1
+Electrical thermal conductivity,16,W*m^(-1)*K^(-1),1
+Conductivity,16,S/m,1
+magnetization_per_mol,15,A*m**2/mol,1
+Mass susceptibility,15,m**3/kg,1
+Resistivity,14,ohm*m^-1,1
+Density,14,kg*m**3,1
+Thermoelectric voltage,14,V,1
+dc magnetization(mass),13,emu/g,1
+Magnetic susceptibility_volume,12,A/m,1
+Lattice+bipolar thermal conductivity,12,W*m^(-1)*K^(-1),1
+Discharge capacity (based on cathode weight),10,A*s/kg,1
+Liquid state thermal conductivity,10,W*m^(-1)*K^(-1),1
+Seebeck  coefficient,10,V/K,1
+Hall concentration,10,m**3,1
+Current,9,-,1
+Electro Motive Force,9,kg*m**2/A/s**3,1
+ln(T/ρ),9,-,1
+TEP,9,V/K,1
+ln σ,9,K,1
+S/L0T,9,V^(-1),1
+Max Efficiency,9,-,1
+Specific heat capacity_K^(-2),9, J*mol^(-1)*K^(-2),1
+Open circuit voltage ,8,V,1
+delta T,8,-,1
+Magnetic Susceptibility per weight,7,emu*g^(-1),1
+σT,6,A**2*s**3*K/kg/m**3,1
+Seebeck  coefficient ,6,V,1
+phonon contribution,6,W*m^(-1)*K^(-1),1
+Contact resistivity,6,ohm*m^2,1
+Calculated Seebeck coefficient,6,V/K,1
+normalized absorbance,6,-,1
+Electrical conductivity0,5,A**2*s**2/kg/m**2,1
+Lorenz number,5,V^2*K^-2,1
+Nernst coefficient,5,m**2/s/K,1
+Saturation Magnetization,5,emu/g,1
+Micro Volts,5,V,1
+Lorenz values,5,-,1
+luminescence intensity,5,-,1
+Magnetic Susceptibility_metre_weight,4,m^3*kg^(-1),1
+σ/τ,4,S/m/s,1
+hierarchy of energies of cluster models,4,m**2*kg/s**2,1
+yield (%),4,-,1
+Fermi energy,4,m,1
+ρ,4,kg,1
+Magnetic field strength (H),4,A/m,1
+K,4,kg*m/s**3/K,1
+Figure of merit Zt,4,K^(-1),1
+Magnetic susceptibility_volume_weight,4,m**3/kg,1
+magnetoresistance,4,-,1
+majority carrier concentration,4,1/m**3,1
+minority carrier concentration,4,1/m**3,1
+T^(-1),4,K^(-1),1
+Surface Conductivity,3,ohm^(-1),1
+Phonon transmission function,3,kg*m**2/s**3/K,1
+Specific Heat K^2,3,m**2*kg/s**2/K**2/mol,1
+Conversion Voltage,3,kg*m**2/A/s**3,1
+"A, |T|, |R|",3,-,1
+-log(T+R),3,-,1
+Magnetic Field,3,A/m,1
+Thermo gravimetry,2,-,1
+Carrier Density n,2,1/m**3,1
+--,2,-,1
+Elastic modulus,2,Pa,1
+Thermal expansion,2,-,1
+Linewidth,2,m**2*kg/s**2,1
+Power/frequency,2,-,1
+O2,2,s**3*mol/kg/m**2,1
+Sab,2,V/K,1
+conductivity,2,-,1
+Ohm,2,ohm,1
+SPL ,2,-,1
+remanence_weight,2,emu/g,1
+Conversion voltage,1,kg*m**2/A/s**3,1
+Difference Absorbance,1,-,1
+" Sr concentration, x",1,-,1
+Capacity,1,A*s,1
+Hall effect,1,-,1
+Normalised PL Integrated Intensity,1,-,1
+Figure of merit Z 1000,1,K^(-1),1
+Luminescence lifetime,1,-,1
+Specific heat capacity_per g,1,m**2/s**2/K,1
+Short-circuit current,1,-,1
+Seebeck coefficient at 550 K,1,m**2*kg/A/s**3/K,1
+N Concentration(mol%),1,-,1
+Maximum output power,1,-,1
+conductance,1,S,1
+Temperture Difference,1,K,1
+Thickness,1,m,1
+latice contribution,1,W*m^(-1)*K^(-1),1
+lattice thermal conductance,1,-,1
+hole mobility,1,A*s**2/kg,1
+Voltage response,1,V,1
+ln(Hall coefficient),1,m,1
+mol %,1,-,1
+rho*d,1,kg*m**4/A**2/s**3,1
+zero-B thermopower,1,m**2*kg/A/s**3/K,1

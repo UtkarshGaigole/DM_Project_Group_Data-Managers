@@ -1,0 +1,32 @@
+core_property,excluded_name,curves,recorded_unit_y
+Electrical conductivity,log(Electrical conductivity),1689,S*m^(-1)
+Electrical conductivity,ln(Electrical conductivity),133,S*m^(-1)
+Electrical conductivity,Conductivity,16,S/m
+Electrical conductivity,σT,6,A**2*s**3*K/kg/m**3
+Electrical conductivity,Electrical conductivity0,5,A**2*s**2/kg/m**2
+Electrical conductivity,log(sigma),4,A**2*s**3/kg/m**3
+Electrical conductivity,Surface Conductivity,3,ohm^(-1)
+Electrical conductivity,conductivity,2,-
+Electrical resistivity,log(Electrical resistivity),189,ohm*m
+Electrical resistivity,ln(Electrical resistivity),150,ohm*m
+Electrical resistivity,Log(row),15,ohm*m
+Electrical resistivity,Resistivity,14,ohm*m^-1
+Electrical resistivity,Contact resistivity,6,ohm*m^2
+Seebeck coefficient,thermopower,552,V*K^(-1)
+Seebeck coefficient,S,71,V/K
+Seebeck coefficient,Thermopower,54,kg*m**2/A/s**3
+Seebeck coefficient,Calculated Seebeck coefficient,6,V/K
+Seebeck coefficient,Seebeck  coefficient ,6,V
+Seebeck coefficient,Seebeck coefficient at 550 K,1,m**2*kg/A/s**3/K
+Seebeck coefficient,zero-B thermopower,1,m**2*kg/A/s**3/K
+Thermal conductivity,Lattice thermal conductivity,6829,W*m^(-1)*K^(-1)
+Thermal conductivity,Electronic thermal conductivity,647,W*m^(-1)*K^(-1)
+Thermal conductivity,total thermal conductivity,134,W*m^(-1)*K^(-1)
+Thermal conductivity,Carrier thermal conductivity,102,W*m^(-1)*K^(-1)
+Thermal conductivity,electron thermal conductivity,99,W*m^(-1)*K^(-1)
+Thermal conductivity,Lattice+bipolar thermal conductivity,12,W*m^(-1)*K^(-1)
+Thermal conductivity,Electrical thermal conductivity,3,W*m^(-1)*K^(-1)
+ZT,Figure of merit Z,501,K^(-1)
+ZT,Figure of merit,40,K^(-1)
+ZT,Figure of merit Zt,4,K^(-1)
+ZT,Figure of merit Z 1000,1,K^(-1)
