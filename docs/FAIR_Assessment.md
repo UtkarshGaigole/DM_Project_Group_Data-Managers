@@ -46,7 +46,7 @@ Scores use **Satisfied**, **Partially satisfied**, and **Failed**. They describe
 | DataCite support | enabled |
 | Overall result | **57%, FAIR level "moderate"** |
 | Run date | 05.11.2026 |
-| Evidence files | Screenshot: `docs/evidence/fuji_assessment_summary.png`  JSON export: `docs/evidence/fuji_assessment.json`* |
+| Evidence files | Screenshot: `docs/evidence/fuji_assessment_summary.png`  JSON export: `docs/evidence/fuji_assessment.json` |
  
 ![F-UJI assessment results for 20261001_starrydata2: overall 57%, Findable 4 of 7 moderate, Accessible 3 of 7 moderate, Interoperable 4 of 6 moderate, Reusable 4 of 6 initial](evidence/fuji_assessment_summary.png)
  
@@ -66,7 +66,7 @@ Scores use **Satisfied**, **Partially satisfied**, and **Failed**. They describe
 | F1 — The data is assigned a globally unique and persistent identifier. | **Satisfied** | The Figshare snapshot has a version-specific DOI: `10.6084/m9.figshare.34036677.v1`. |
 | F2 — The data is described with rich metadata. | **Partially satisfied** | The record provides citation metadata, and the files include paper, sample, and curve fields, but the completeness of domain-specific metadata needs further evaluation.
 | F3 — Metadata clearly includes the identifier of the data it describes. | **Satisfied** | The DOI identifies the specific snapshot described by the Figshare metadata. |
-| F4 — Metadata is registered or indexed in a searchable resource. | **Partially  Satisfied** | The dataset is discoverable through Figshare, but additional indexing and search-engine discoverability should be verified. |
+| F4 — Metadata is registered or indexed in a searchable resource. | **Partially satisfied** | The dataset is discoverable through Figshare, but additional indexing and search-engine discoverability should be verified. |
 
 ### Accessible
 
@@ -89,7 +89,7 @@ Scores use **Satisfied**, **Partially satisfied**, and **Failed**. They describe
 
 | Sub-criterion | Score | Justification |
 |---|---|---|
-| R1.1 — The data is released with a clear and accessible data usage license. | **Satisfied** | The dataset is licensed under CC BY 4.0, as confirmed by Dr. Mato. |
+| R1.1 — The data is released with a clear and accessible data usage license. | **Satisfied** | The Figshare record states CC BY 4.0, and Dr. Mato confirmed it by email (29 October 2026). One inconsistency remains at file level: the bundled `README.md` still says "This dataset is provided under the XXX License", a placeholder that contradicts the Figshare record. The group treats the Figshare record as authoritative and reports the README defect (issue register #18). |
 | R1.2 — The data is associated with detailed provenance. | **Partially satisfied** | Citation metadata and links to original papers provide provenance, but users may need additional extraction and curation details to reproduce every digitized value. |
 | R1.3 — The data meets domain-relevant community standards. | **Partially satisfied** | The dataset documents its tables, fields, relationships, and units, but its CSV/JSON schema is not fully mapped to a shared community data model. |
 
@@ -101,9 +101,8 @@ The overall F-UJI result is moderate (57%). Findability and accessibility are th
 
 - Figshare dataset snapshot: <https://doi.org/10.6084/m9.figshare.34036677.v1>
 - Starrydata download documentation and data schema: <https://starrydata.github.io/hp/en/manual/download/>
-- F-UJI result screenshot: docs/evidence/fuji_assessment_summary.png; F-UJI JSON export: docs/evidence/fuji_assessment.json (to be added); F-UJI tool: https://www.f-uji.net/index.php; metric specification: https://doi.org/10.5281/zenodo.15045911
+- F-UJI result screenshot: docs/evidence/fuji_assessment_summary.png; F-UJI JSON export: docs/evidence/fuji_assessment.json; F-UJI tool: https://www.f-uji.net/index.php; metric specification: https://doi.org/10.5281/zenodo.15045911
 - Starrydata citation guidance: <https://starrydata.github.io/hp/cite/>
 - Orphan records (I3): 01_data_profiling.ipynb, referential integrity report
 - Y. Katsura, M. Kumagai, T. Mato, et al., Sci. Technol. Adv. Mater.: Methods 5(1), 2506976 (2025): https://doi.org/10.1080/27660400.2025.2506976
 - License: CC BY 4.0
-
