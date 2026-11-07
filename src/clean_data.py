@@ -21,10 +21,12 @@ EXPECTED_SAMPLES_ROWS = 106331
 EXPECTED_PAPERS_ROWS = 56495
 
 EXPECTED_PRECISION_COUNTS = {
+    
     "YMD": 25192,
     "YM": 24570,
     "Y": 6526,
     "Unknown": 207
+
 }
 
 
@@ -304,7 +306,6 @@ def clean_papers_data():
     
     
     
-    print("\nDEBUG: All original issued values classified as Unknown")
     
     unknown_mask = cleaned_papers["issued_precision"].eq("Unknown")
     
@@ -318,7 +319,6 @@ def clean_papers_data():
     
     
     
-    print("\nDEBUG: Records where issued_year is missing")
     
     missing_year_mask = cleaned_papers["issued_year"].isna()
     
