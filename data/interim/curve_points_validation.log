@@ -1,0 +1,13 @@
+CURVE POINT GENERATION VALIDATION
+
+PASS: Mandatory columns exist
+PASS: Raw curve row count | Actual: 237,313
+PASS: Raw (figure_id, sample_id) pairs are unique | Duplicates: 0
+PASS: x and y array lengths match | Mismatched curves: 0
+PASS: Empty array curve count | Actual: 3,952
+PASS: Total points equal sum of array lengths | Actual: 4,839,779
+PASS: Generated row count | Actual: 4,839,779
+PASS: Every generated curve pair exists in raw curves
+PASS: Output composite key is unique | (figure_id, sample_id, point_index)
+
+Generation completed successfully.
