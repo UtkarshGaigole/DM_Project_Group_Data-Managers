@@ -128,7 +128,7 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 | `starrydata_samples.csv` | `744B1B496368C0ED24231073AE324A2EF302076801331ABB0F9C69DCF9754F55` | `744B1B496368C0ED24231073AE324A2EF302076801331ABB0F9C69DCF9754F55` | `744B1B496368C0ED24231073AE324A2EF302076801331ABB0F9C69DCF9754F55` |
 
 **Evidence for presentation**
-- ☐ Screenshot of terminal output saved (e.g. `docs/evidence/checksums.png`)
+- ☑ Checksum output saved as text: `docs/evidence/checksums_sreelakshmi.txt`
 
 ---
 
@@ -529,7 +529,7 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 | Table | curves + `curve_points.csv` |
 | Columns affected | Adds point count per curve and `has_points` |
 | Flow step name in `.tflx` | input "curve_points" → "Profile Raw Points" → aggregate "Count points per curve" → "Left Join: Ingest Point Counts" → "Flag Empty Curve" |
-| Python equivalent (`src/`) | Not yet: `curve_points.csv` comes from Aditya's Python unpacking, but `n_points` / `has_points` still have to be added on the Python side (Aditya). |
+| Python equivalent (`src/`) | `build_tier2_outputs()` in `src/clean_data.py`: counts points per curve, leaves `n_points` null for curves without points, derives `has_points`. Verified equal to Tableau (2,140 nulls in both; `docs/evidence/equivalence_report.md`). |
 
 **Why this step matters / problem addressed**
 - The x/y coordinates are stored as string arrays inside curves. Aditya's Python code unpacks them into `curve_points.csv`, one row per coordinate pair.
@@ -578,9 +578,9 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 |---|---|
 | Issue ID(s) (issue register) | O22 (scope reduction for coordinates) |
 | Table | `curve_points.csv` → Tier 2 points |
-| Columns affected | Output schema restricted to 7 columns: `figure_id`, `sample_id`, `point_index`, `x_value`, `y_value`, `prop_y`, `unit_y` |
+| Columns affected | Output schema restricted to 7 columns: `sample_id`, `figure_id`, `prop_y`, `unit_y`, `point_index`, `x_value`, `y_value` |
 | Flow step name in `.tflx` | "Join: Filter T2 Points" → "Format Points Schema" |
-| Python equivalent (`src/`) | `join_tier2_curve_points()`. **Pending (Aditya):** it does not yet output `prop_y` / `unit_y`. |
+| Python equivalent (`src/`) | `build_tier2_outputs()` in `src/clean_data.py`; writes the same 7 columns in the same order. Verified equal to Tableau (`docs/evidence/equivalence_report.md`). |
 
 **Why this step matters / problem addressed**
 - `curve_points.csv` covers the whole database (4,839,779 rows), but only the 136,679 Tier 2 curves were validated.

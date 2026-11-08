@@ -2,7 +2,7 @@
 
 **Dataset:** `20261001_starrydata2`, Figshare snapshot `10.6084/m9.figshare.34036677.v1` (database snapshot 2026-10-01 02:00:01 JST)  
 **Prepared by:** Group 6 "Data-Managers", SRH University of Applied Sciences Heidelberg  
-**Version:** v2.2, 2026-11-07 (Python Tier 2 code merged 07 Nov, PR #20; formal Tableau–Python comparison pending; precision labels match the outputs; #20 moved to unresolved)  
+**Version:** v2.3, 2026-11-08 (Tableau–Python comparison completed: 0 substantive mismatches; 31 tests pass; precision labels match the outputs; #20 unresolved)  
 **Row counts of the raw tables:** papers 56,495 · samples 106,331 · curves 237,313
 
 ## How to read this register
@@ -24,7 +24,7 @@ So an issue can be High in severity and Low in residual risk (for example #1, ne
 
 **Eight fields per issue:** problem · table / column · records affected · impact · proposed treatment · applied treatment · rows before / after · validation.
 
-All counts were reproduced from the raw files (`dictionary_appendix_counts.py`, the profiling notebook) and the Tableau Prep flow. Where a check also cites the Python Tier 2 pipeline, that code was merged on 07 Nov (PR #20); the formal Tableau–Python comparison is pending. Every issue appears once (20 issues).
+All counts were reproduced from the raw files (`dictionary_appendix_counts.py`, the profiling notebook) and the Tableau Prep flow. Where a check also cites the Python Tier 2 pipeline, that code was merged on 07 Nov (PR #20). The formal Tableau–Python comparison is complete: both outputs match in all 41 columns, with 0 substantive mismatches; the only differences are Tableau's CSV export rounding (at most 5×10⁻¹⁰) and line endings (`docs/evidence/equivalence_report.md`). Every issue appears once (20 issues).
 
 ## Summary
 
@@ -75,7 +75,7 @@ All counts were reproduced from the raw files (`dictionary_appendix_counts.py`, 
 - **Proposed treatment:** unpack once, in one tested Python function, into a tidy point table keyed by the curve key (`figure_id`, `sample_id`) and the point position. Tableau reads that output.
 - **Applied treatment:** `curve_points.csv` with the columns `figure_id`, `sample_id`, `point_index`, `x_value`, `y_value`.
 - **Rows before / after:** 237,313 curves → 233,361 curves with points → 4,839,779 point rows. In scope: 134,539 curves → 2,337,212 points.
-- **Validation:** rows equal the sum of the array lengths; the key (`figure_id`, `sample_id`, `point_index`) is unique; every curve key exists in the raw `curves`; automated checks run in the Python test suite (16 tests pass; Python pipeline, PR #20).
+- **Validation:** rows equal the sum of the array lengths; the key (`figure_id`, `sample_id`, `point_index`) is unique; every curve key exists in the raw `curves`; automated checks run in the Python test suite (31 tests pass, 08 Nov).
 
 ### 3. Property name variants and unit errors
 
