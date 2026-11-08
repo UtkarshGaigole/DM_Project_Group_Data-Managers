@@ -100,9 +100,9 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 | `starrydata_papers.csv` | `b82ff398b28c15e42aa6ef6de1df9c26f3935a00dd9c76925e9dbbf1a6b4e222` | ✓ ⚠1 | ✓ | ✓ | ✓ |
 | `starrydata_samples.csv` | `744b1b496368c0ed24231073ae324a2ef302076801331abb0f9c69dcf9754f55` | ✓ ⚠1 | ✓ | ✓ | ✓ |
 | `starrydata_curves.csv` | `411515829de82041809e112a30d55c676567972c80a95965c37feb1b1ef41c96` | ✓ ⚠1 | ✓ | ✓ | ✓ |
-| `starrydata_dataset.zip` | `32f4ab3cdcecc8f95ff85342c373c54d8ff2e39f953333845670a711da9b30c6` | ✓ ⚠1 | ✓ ⚠3 | n/a (not in .tflx) | ✓ |
-| `README.md` | `0b8168491a702ed2f98e0771f15eb9949fd290661201d8c63cfaa08d62e2d55e` | ✓ ⚠1 | ✓ | n/a (not in .tflx) | ✓ |
-| `db_snapshot.txt` | `d7b08c352a35298c0cfb3648b7f49dde43cdb102da285f7dc5d62768c4ca82b2` | ✓ ⚠1 | ✓ | n/a (not in .tflx) | ✓ |
+| `starrydata_dataset.zip` | `32f4ab3cdcecc8f95ff85342c373c54d8ff2e39f953333845670a711da9b30c6` | ✓ ⚠1 | ✓ ⚠3 | ✓ | ✓ |
+| `README.md` | `0b8168491a702ed2f98e0771f15eb9949fd290661201d8c63cfaa08d62e2d55e` | ✓ ⚠1 | ✓ | ✓ | ✓ |
+| `db_snapshot.txt` | `d7b08c352a35298c0cfb3648b7f49dde43cdb102da285f7dc5d62768c4ca82b2` | ✓ ⚠1 | ✓ | ✓ | ✓ |
 
 **Validation performed**
 - 2026-11-06: Sreelakshmi's and Aditya's outputs compared case-insensitively with the team reference. All three CSVs match for both members.
@@ -113,14 +113,14 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 **Notes / issues**
 - ⚠1 Sreelakshmi — **content is proven, file names are not.** All six reference hashes are distinct, and her six reported hashes match all six references, so she holds all six files with identical content. What remains unproven is the name-to-content mapping: her Path column was truncated, so hashes are assigned to files only by row order. In principle her `papers.csv` could hold the samples content (e.g. swapped names). Supporting evidence: `Get-FileHash *` lists files alphabetically, and her row order matches Aditya's, whose full paths are visible. Her screenshot also shows only 5 rows (the zip row `32F4AB…` is in her pasted text only). Re-run requested with `| Format-List` so each hash appears next to its file name, with all six rows in the screenshot. _Status at sign-off: re-run ⏳ not yet received; content match is proven, name mapping rests on the row-order evidence above._
 - ⚠3 Aditya's zip is named `starrydata_dataset (1).zip`, which looks like a browser's duplicate-download suffix. The hash depends on content, not on the file name, so this doesn't affect the check, but the name in the log differs from the expected file name.
-- ✱ Utkarsh: Verified 06 Nov: CSVs packaged in `cleaning_flow.tflx` match reference SHA-256. These are the files Tableau Prep actually reads. Zip, README.md and db_snapshot.txt are not in the `.tflx`.
+- ✱ Utkarsh: 06 Nov, CSVs packaged in the .tflx matched the reference; 08 Nov, all six files in data\raw\ re-hashed with Get-FileHash and all six match.
 - Provenance of each member's copy. All four copies hold the six files with hashes identical to the team reference, i.e. the same content as the Figshare snapshot (DOI 10.6084/m9.figshare.34036677.v1). How each copy was obtained (own download or shared copy) was not recorded at the time.
 
 | Member | Location of the copy | Hashes verified | Result |
 |---|---|---|---|
 | Utkarsh | `data\raw\` in the project folder | 08 Nov 2026 (`Get-FileHash`) | 6 of 6 match |
 | Aditya | `data\raw\` in the project folder | 06 Nov 2026 | 6 of 6 match |
-| Sreelakshmi | `data\raw\` in the project folder | 06 Nov 2026 | 6 of 6 match |
+| Sreelakshmi | Project folder on Desktop (path truncated in output) | 06 Nov 2026 | 6 of 6 match |
 | Akshay | `data\raw\` in the project folder | 06 Nov 2026 | 6 of 6 match |
 
 **Appendix: reported hashes per member** (as reported, Windows PowerShell, uppercase)
