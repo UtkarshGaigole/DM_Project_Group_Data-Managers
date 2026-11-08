@@ -186,7 +186,8 @@ def clean_publication_precision(papers: pd.DataFrame) -> pd.DataFrame:
     parsed_components: list[tuple[int | None, int | None, int | None]] = []
 
     for row_index, value in extracted.items():
-        if value is None or value == "":
+        # pandas 3 turns a None returned by map() into NaN, so test with isna.
+        if value is None or pd.isna(value) or value == "":
             parsed_components.append((None, None, None))
             continue
 

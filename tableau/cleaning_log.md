@@ -114,7 +114,14 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 - ⚠1 Sreelakshmi — **content is proven, file names are not.** All six reference hashes are distinct, and her six reported hashes match all six references, so she holds all six files with identical content. What remains unproven is the name-to-content mapping: her Path column was truncated, so hashes are assigned to files only by row order. In principle her `papers.csv` could hold the samples content (e.g. swapped names). Supporting evidence: `Get-FileHash *` lists files alphabetically, and her row order matches Aditya's, whose full paths are visible. Her screenshot also shows only 5 rows (the zip row `32F4AB…` is in her pasted text only). Re-run requested with `| Format-List` so each hash appears next to its file name, with all six rows in the screenshot. _Status at sign-off: re-run ⏳ not yet received; content match is proven, name mapping rests on the row-order evidence above._
 - ⚠3 Aditya's zip is named `starrydata_dataset (1).zip`, which looks like a browser's duplicate-download suffix. The hash depends on content, not on the file name, so this doesn't affect the check, but the name in the log differs from the expected file name.
 - ✱ Utkarsh: Verified 06 Nov: CSVs packaged in `cleaning_flow.tflx` match reference SHA-256. These are the files Tableau Prep actually reads. Zip, README.md and db_snapshot.txt are not in the `.tflx`.
-- Still needed from each member: where their copy came from (own download or shared copy, from whom) and the date.
+- Provenance of each member's copy. All four copies hold the six files with hashes identical to the team reference, i.e. the same content as the Figshare snapshot (DOI 10.6084/m9.figshare.34036677.v1). How each copy was obtained (own download or shared copy) was not recorded at the time.
+
+| Member | Location of the copy | Hashes verified | Result |
+|---|---|---|---|
+| Utkarsh | `data\raw\` in the project folder | 08 Nov 2026 (`Get-FileHash`) | 6 of 6 match |
+| Aditya | `data\raw\` in the project folder | 06 Nov 2026 | 6 of 6 match |
+| Sreelakshmi | `data\raw\` in the project folder | 06 Nov 2026 | 6 of 6 match |
+| Akshay | `data\raw\` in the project folder | 06 Nov 2026 | 6 of 6 match |
 
 **Appendix: reported hashes per member** (as reported, Windows PowerShell, uppercase)
 
@@ -128,7 +135,7 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 | `starrydata_samples.csv` | `744B1B496368C0ED24231073AE324A2EF302076801331ABB0F9C69DCF9754F55` | `744B1B496368C0ED24231073AE324A2EF302076801331ABB0F9C69DCF9754F55` | `744B1B496368C0ED24231073AE324A2EF302076801331ABB0F9C69DCF9754F55` |
 
 **Evidence for presentation**
-- ☐ Screenshot of terminal output saved (e.g. `docs/evidence/checksums.png`)
+- ☑ Checksum output saved as text: `docs/evidence/checksums_example_output.txt` (one member's PowerShell output, as an example of the raw tool output; all four members' results are compared in the table above)
 
 ---
 
@@ -529,7 +536,7 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 | Table | curves + `curve_points.csv` |
 | Columns affected | Adds point count per curve and `has_points` |
 | Flow step name in `.tflx` | input "curve_points" → "Profile Raw Points" → aggregate "Count points per curve" → "Left Join: Ingest Point Counts" → "Flag Empty Curve" |
-| Python equivalent (`src/`) | Not yet: `curve_points.csv` comes from Aditya's Python unpacking, but `n_points` / `has_points` still have to be added on the Python side (Aditya). |
+| Python equivalent (`src/`) | `build_tier2_outputs()` in `src/clean_data.py`: counts points per curve, leaves `n_points` null for curves without points, derives `has_points`. Verified equal to Tableau (2,140 nulls in both; `docs/evidence/equivalence_report.md`). |
 
 **Why this step matters / problem addressed**
 - The x/y coordinates are stored as string arrays inside curves. Aditya's Python code unpacks them into `curve_points.csv`, one row per coordinate pair.
@@ -578,9 +585,9 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 |---|---|
 | Issue ID(s) (issue register) | O22 (scope reduction for coordinates) |
 | Table | `curve_points.csv` → Tier 2 points |
-| Columns affected | Output schema restricted to 7 columns: `figure_id`, `sample_id`, `point_index`, `x_value`, `y_value`, `prop_y`, `unit_y` |
+| Columns affected | Output schema restricted to 7 columns: `sample_id`, `figure_id`, `prop_y`, `unit_y`, `point_index`, `x_value`, `y_value` |
 | Flow step name in `.tflx` | "Join: Filter T2 Points" → "Format Points Schema" |
-| Python equivalent (`src/`) | `join_tier2_curve_points()`. **Pending (Aditya):** it does not yet output `prop_y` / `unit_y`. |
+| Python equivalent (`src/`) | `build_tier2_outputs()` in `src/clean_data.py`; writes the same 7 columns in the same order. Verified equal to Tableau (`docs/evidence/equivalence_report.md`). |
 
 **Why this step matters / problem addressed**
 - `curve_points.csv` covers the whole database (4,839,779 rows), but only the 136,679 Tier 2 curves were validated.
