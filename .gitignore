@@ -7,6 +7,9 @@ data/processed/*
 !data/raw/.gitkeep
 !data/interim/.gitkeep
 !data/processed/.gitkeep
+!data/processed/tableau/
+data/processed/tableau/*
+!data/processed/tableau/.gitkeep
 
 # Ignore databases
 *.db
@@ -22,3 +25,10 @@ __pycache__/
 .env
 venv/
 .venv/
+
+# Packaged Tableau flows and extracts (too large for GitHub; .tflx goes in the submission ZIP)
+*.tflx
+*.hyper
+
+# Jupyter
+.ipynb_checkpoints/
