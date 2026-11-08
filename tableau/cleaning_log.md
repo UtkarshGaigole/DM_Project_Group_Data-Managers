@@ -114,7 +114,14 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 - ⚠1 Sreelakshmi — **content is proven, file names are not.** All six reference hashes are distinct, and her six reported hashes match all six references, so she holds all six files with identical content. What remains unproven is the name-to-content mapping: her Path column was truncated, so hashes are assigned to files only by row order. In principle her `papers.csv` could hold the samples content (e.g. swapped names). Supporting evidence: `Get-FileHash *` lists files alphabetically, and her row order matches Aditya's, whose full paths are visible. Her screenshot also shows only 5 rows (the zip row `32F4AB…` is in her pasted text only). Re-run requested with `| Format-List` so each hash appears next to its file name, with all six rows in the screenshot. _Status at sign-off: re-run ⏳ not yet received; content match is proven, name mapping rests on the row-order evidence above._
 - ⚠3 Aditya's zip is named `starrydata_dataset (1).zip`, which looks like a browser's duplicate-download suffix. The hash depends on content, not on the file name, so this doesn't affect the check, but the name in the log differs from the expected file name.
 - ✱ Utkarsh: Verified 06 Nov: CSVs packaged in `cleaning_flow.tflx` match reference SHA-256. These are the files Tableau Prep actually reads. Zip, README.md and db_snapshot.txt are not in the `.tflx`.
-- Still needed from each member: where their copy came from (own download or shared copy, from whom) and the date.
+- Provenance of each member's copy. All four copies hold the six files with hashes identical to the team reference, i.e. the same content as the Figshare snapshot (DOI 10.6084/m9.figshare.34036677.v1). How each copy was obtained (own download or shared copy) was not recorded at the time.
+
+| Member | Location of the copy | Hashes verified | Result |
+|---|---|---|---|
+| Utkarsh | `data\raw\` in the project folder | 08 Nov 2026 (`Get-FileHash`) | 6 of 6 match |
+| Aditya | `data\raw\` in the project folder | 06 Nov 2026 | 6 of 6 match |
+| Sreelakshmi | `data\raw\` in the project folder | 06 Nov 2026 | 6 of 6 match |
+| Akshay | `data\raw\` in the project folder | 06 Nov 2026 | 6 of 6 match |
 
 **Appendix: reported hashes per member** (as reported, Windows PowerShell, uppercase)
 
@@ -128,7 +135,7 @@ For MD5: `-Algorithm MD5` (PowerShell) or `md5 <file>` (macOS).
 | `starrydata_samples.csv` | `744B1B496368C0ED24231073AE324A2EF302076801331ABB0F9C69DCF9754F55` | `744B1B496368C0ED24231073AE324A2EF302076801331ABB0F9C69DCF9754F55` | `744B1B496368C0ED24231073AE324A2EF302076801331ABB0F9C69DCF9754F55` |
 
 **Evidence for presentation**
-- ☑ Checksum output saved as text: `docs/evidence/checksums_sreelakshmi.txt`
+- ☑ Checksum output saved as text: `docs/evidence/checksums_example_output.txt` (one member's PowerShell output, as an example of the raw tool output; all four members' results are compared in the table above)
 
 ---
 
