@@ -447,6 +447,8 @@ def main() -> None:
         "%(asctime)s UTC | %(levelname)s | %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
+    # asctime uses local time by default; convert to UTC so the "UTC" label is true.
+    formatter.converter = time.gmtime
     file_handler = logging.FileHandler(log_path, encoding="utf-8")
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)

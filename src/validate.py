@@ -1,4 +1,3 @@
-
 import json
 from pathlib import Path
 
@@ -19,10 +18,12 @@ except ImportError:
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 INTERIM_DIR = PROJECT_ROOT / "data" / "interim"
+PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
 
 CURVE_POINTS_INPUT = INTERIM_DIR / "curve_points.csv"
-TIER2_CURVES_INPUT = INTERIM_DIR / "starrydata_curves_tier2.csv"
-TIER2_POINTS_INPUT = INTERIM_DIR / "starrydata_tier2_curve_points.csv"
+# Tier 2 outputs written by src/clean_data.py
+TIER2_CURVES_INPUT = PROCESSED_DIR / "tier2_curves.csv"
+TIER2_POINTS_INPUT = PROCESSED_DIR / "tier2_points.csv"
 
 EXPECTED_PAPERS_ROWS = 56_495
 EXPECTED_SAMPLES_ROWS = 106_331
