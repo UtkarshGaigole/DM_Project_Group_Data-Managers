@@ -1,9 +1,16 @@
-# Ignore large datasets and databases
-*.csv
-*.xlsx
+# Ignore generated datasets and pipeline outputs
+data/raw/*
+data/interim/*
+data/processed/*
+
+# Preserve data directory structure
+!data/raw/.gitkeep
+!data/interim/.gitkeep
+!data/processed/.gitkeep
+
+# Ignore databases
 *.db
-*.parquet
-*.json
+*.sqlite
 
 # Ignore Mac/Windows system files
 .DS_Store
@@ -14,3 +21,4 @@ __pycache__/
 *.pyc
 .env
 venv/
+.venv/

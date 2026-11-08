@@ -135,7 +135,8 @@ def test_tier2_curves_with_and_without_points(pipeline_outputs):
 
     assert int(curves["has_points"].sum()) == 134539
     assert int((~curves["has_points"]).sum()) == 2140
-    assert int(curves["n_points"].eq(0).sum()) == 2140
+    assert int(curves["n_points"].isna().sum()) == 2140
+    assert int(curves["n_points"].eq(0).sum()) == 0
 
 
 def test_tier2_orphan_curves_are_retained(pipeline_outputs):
