@@ -7,8 +7,12 @@ Dataset-specific expected counts belong in tests, not in this pipeline.
 
 from __future__ import annotations
 
+import csv
 import json
+import logging
 import re
+import time
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable
 
@@ -18,6 +22,8 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 RAW_DIR = PROJECT_ROOT / "data" / "raw"
 INTERIM_DIR = PROJECT_ROOT / "data" / "interim"
 PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+LOGS_DIR = PROJECT_ROOT / "logs"
+RUN_SUMMARY = LOGS_DIR / "run_summary.csv"
 
 PAPERS_INPUT = RAW_DIR / "starrydata_papers.csv"
 SAMPLES_INPUT = RAW_DIR / "starrydata_samples.csv"
@@ -97,7 +103,7 @@ IDENTIFIER_COLUMNS = {
 
 
 def read_csv(path: Path, *, string_columns: Iterable[str] = ()) -> pd.DataFrame:
-    """Read a CSV while preserving identifiers and skipping blank lines."""
+    """Read CSV while preserving literal NA-like text values."""
     if not path.is_file():
         raise FileNotFoundError(f"Required input file not found: {path}")
 
@@ -107,7 +113,8 @@ def read_csv(path: Path, *, string_columns: Iterable[str] = ()) -> pd.DataFrame:
         dtype=dtype or None,
         low_memory=False,
         skip_blank_lines=True,
-        keep_default_na=True,
+        keep_default_na=False,
+        na_values=[""],
     )
 
 
@@ -368,8 +375,11 @@ def build_tier2_outputs(
         how="left",
         validate="one_to_one",
     )
-    tier2_curves["n_points"] = tier2_curves["n_points"].fillna(0).astype("int64")
-    tier2_curves["has_points"] = tier2_curves["n_points"].gt(0)
+
+    # Preserve missing point counts for curves without measurements.
+    tier2_curves["n_points"] = tier2_curves["n_points"].astype("Int64")
+    tier2_curves["has_points"] = tier2_curves["n_points"].fillna(0).gt(0)
+
     tier2_curves = tier2_curves.drop(columns=["x", "y"], errors="ignore")
     tier2_curves = tier2_curves[TIER2_CURVE_COLUMNS]
 
@@ -392,33 +402,165 @@ def build_tier2_outputs(
     return tier2_curves, tier2_points
 
 
+def _append_run_summary(record: dict[str, object]) -> None:
+    """Append one run record to the persistent CSV summary."""
+    LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    fieldnames = [
+        "run_id",
+        "started_at_utc",
+        "finished_at_utc",
+        "duration_seconds",
+        "status",
+        "papers_input_rows",
+        "samples_input_rows",
+        "curves_input_rows",
+        "curve_points_input_rows",
+        "tier2_curves_selected_rows",
+        "tier2_curves_output_rows",
+        "tier2_points_output_rows",
+        "curves_filtered_out_rows",
+        "quarantined_rows",
+        "quarantine_status",
+        "error",
+        "log_file",
+    ]
+    write_header = not RUN_SUMMARY.exists() or RUN_SUMMARY.stat().st_size == 0
+    with RUN_SUMMARY.open("a", newline="", encoding="utf-8") as summary_file:
+        writer = csv.DictWriter(summary_file, fieldnames=fieldnames)
+        if write_header:
+            writer.writeheader()
+        writer.writerow(record)
+
+
 def main() -> None:
-    """Run the cleaning pipeline and write final Tier 2 deliverables."""
-    INTERIM_DIR.mkdir(parents=True, exist_ok=True)
-    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+    """Run the cleaning pipeline and persist a detailed record of every run."""
+    LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    started_clock = time.perf_counter()
+    started_at = datetime.now(timezone.utc)
+    run_id = started_at.strftime("%Y%m%dT%H%M%SZ")
+    log_path = LOGS_DIR / f"pipeline_{run_id}.log"
 
-    samples = clean_samples_data()
-    papers = clean_papers_data()
-    curves = clean_curves_data()
-
-    tier2_curves = filter_tier2_curves(curves)
-    enriched_curves = join_tier2_datasets(tier2_curves, samples, papers)
-    curve_points = _load_curve_points(CURVE_POINTS_INPUT)
-    output_curves, output_points = build_tier2_outputs(enriched_curves, curve_points)
-
-    output_curves.to_csv(TIER2_CURVES_OUTPUT, index=False, encoding="utf-8")
-    output_points.to_csv(TIER2_POINTS_OUTPUT, index=False, encoding="utf-8")
-
-    print("\nCleaning pipeline completed.")
-    print(f"Tier 2 curves: {len(output_curves):,}")
-    print(f"Tier 2 curves with points: {int(output_curves['has_points'].sum()):,}")
-    print(
-        f"Tier 2 curves without points: {int((~output_curves['has_points']).sum()):,}"
+    logger = logging.getLogger(f"starrydata_pipeline_{run_id}")
+    logger.setLevel(logging.INFO)
+    logger.propagate = False
+    formatter = logging.Formatter(
+        "%(asctime)s UTC | %(levelname)s | %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
     )
-    print(f"Tier 2 measurement points: {len(output_points):,}")
-    print(f"Orphan curves retained: {int(output_curves['is_orphan'].sum()):,}")
-    print(f"Saved: {TIER2_CURVES_OUTPUT}")
-    print(f"Saved: {TIER2_POINTS_OUTPUT}")
+    file_handler = logging.FileHandler(log_path, encoding="utf-8")
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+
+    record: dict[str, object] = {
+        "run_id": run_id,
+        "started_at_utc": started_at.isoformat(timespec="seconds"),
+        "finished_at_utc": "",
+        "duration_seconds": "",
+        "status": "RUNNING",
+        "papers_input_rows": "",
+        "samples_input_rows": "",
+        "curves_input_rows": "",
+        "curve_points_input_rows": "",
+        "tier2_curves_selected_rows": "",
+        "tier2_curves_output_rows": "",
+        "tier2_points_output_rows": "",
+        "curves_filtered_out_rows": "",
+        # The current pipeline has no quarantine stage. Do not imply filtered
+        # rows were quarantined; record zero and explicitly mark it unavailable.
+        "quarantined_rows": 0,
+        "quarantine_status": "No quarantine stage implemented",
+        "error": "",
+        "log_file": str(log_path.relative_to(PROJECT_ROOT)),
+    }
+
+    try:
+        INTERIM_DIR.mkdir(parents=True, exist_ok=True)
+        PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+
+        logger.info("Pipeline run started: %s", run_id)
+        logger.info("Reading and cleaning source tables.")
+
+        samples = clean_samples_data()
+        papers = clean_papers_data()
+        curves = clean_curves_data()
+
+        record["samples_input_rows"] = len(samples)
+        record["papers_input_rows"] = len(papers)
+        record["curves_input_rows"] = len(curves)
+        logger.info(
+            "Input rows | papers=%s | samples=%s | curves=%s",
+            len(papers),
+            len(samples),
+            len(curves),
+        )
+
+        tier2_curves = filter_tier2_curves(curves)
+        record["tier2_curves_selected_rows"] = len(tier2_curves)
+        record["curves_filtered_out_rows"] = len(curves) - len(tier2_curves)
+        logger.info(
+            "Tier 2 filtering | selected=%s | filtered_out=%s",
+            len(tier2_curves),
+            len(curves) - len(tier2_curves),
+        )
+
+        enriched_curves = join_tier2_datasets(tier2_curves, samples, papers)
+        curve_points = _load_curve_points(CURVE_POINTS_INPUT)
+        record["curve_points_input_rows"] = len(curve_points)
+        logger.info("Curve-points input rows: %s", len(curve_points))
+
+        output_curves, output_points = build_tier2_outputs(
+            enriched_curves, curve_points
+        )
+
+        output_curves.to_csv(TIER2_CURVES_OUTPUT, index=False, encoding="utf-8")
+        output_points.to_csv(TIER2_POINTS_OUTPUT, index=False, encoding="utf-8")
+
+        record["tier2_curves_output_rows"] = len(output_curves)
+        record["tier2_points_output_rows"] = len(output_points)
+
+        logger.info("Tier 2 curves output rows: %s", len(output_curves))
+        logger.info("Tier 2 points output rows: %s", len(output_points))
+        logger.info(
+            "Curves with points=%s | without points=%s | orphan curves=%s",
+            int(output_curves["has_points"].sum()),
+            int((~output_curves["has_points"]).sum()),
+            int(output_curves["is_orphan"].sum()),
+        )
+        logger.info("Saved curves output: %s", TIER2_CURVES_OUTPUT)
+        logger.info("Saved points output: %s", TIER2_POINTS_OUTPUT)
+        record["status"] = "SUCCESS"
+
+        print("\\nCleaning pipeline completed.")
+        print(f"Tier 2 curves: {len(output_curves):,}")
+        print(f"Tier 2 curves with points: {int(output_curves['has_points'].sum()):,}")
+        print(
+            f"Tier 2 curves without points: {int((~output_curves['has_points']).sum()):,}"
+        )
+        print(f"Tier 2 measurement points: {len(output_points):,}")
+        print(f"Orphan curves retained: {int(output_curves['is_orphan'].sum()):,}")
+        print(f"Saved: {TIER2_CURVES_OUTPUT}")
+        print(f"Saved: {TIER2_POINTS_OUTPUT}")
+
+    except Exception as exc:
+        record["status"] = "FAILED"
+        record["error"] = f"{type(exc).__name__}: {exc}"
+        logger.exception("Pipeline failed.")
+        raise
+
+    finally:
+        finished_at = datetime.now(timezone.utc)
+        duration = time.perf_counter() - started_clock
+        record["finished_at_utc"] = finished_at.isoformat(timespec="seconds")
+        record["duration_seconds"] = round(duration, 3)
+        logger.info(
+            "Pipeline finished | status=%s | duration_seconds=%.3f",
+            record["status"],
+            duration,
+        )
+        logger.info("Run summary: %s", RUN_SUMMARY)
+        file_handler.close()
+        logger.removeHandler(file_handler)
+        _append_run_summary(record)
 
 
 if __name__ == "__main__":
