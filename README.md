@@ -51,7 +51,7 @@ Windows PowerShell: `Get-FileHash .\data\raw\starrydata_papers.csv -Algorithm SH
 
 ## 3. Setup
 
-Requires Python 3 with the packages in `requirements.txt`. Run every command from the **repository root**.
+Requires Python 3.10 or newer (tested with 3.13) and the packages in `requirements.txt` (pandas, NumPy, pytest; Jupyter only for the notebook). Run every command from the **repository root**.
 
 ```bash
 python -m venv venv
@@ -79,7 +79,7 @@ The profiling notebook `notebooks/01_data_profiling.ipynb` documents the initial
 
 ### Tableau Prep flow
 
-`tableau/Starrydata_Pipeline.tfl` is the visual pipeline (Tableau Prep Builder 2026.3). It reads `data/raw/*.csv` and `data/interim/curve_points.csv`, so **run step 2 first**. Input and output paths are stored as absolute Windows paths; on another machine, re-point the four input steps and the two output steps to your copy of the repository. The packaged flow with its data (`.tflx`, 110 MB) is part of the course submission ZIP; it exceeds GitHub's file-size limit.
+`tableau/Starrydata_Pipeline.tfl` is the visual pipeline (Tableau Prep Builder 2026.3). It reads `data/raw/*.csv` and `data/interim/curve_points.csv`, so **run step 2 first**. Input and output paths are stored as absolute Windows paths; on another machine, re-point the four input steps and the two output steps to your copy of the repository. The two output steps write to **`data/processed/tableau/`** (`tier2_curves.csv`, `tier2_points.csv`), separate from the Python outputs in `data/processed/`, so that `compare_outputs.py` can compare the two. The packaged flow with its data (`.tflx`, 110 MB) is part of the course submission ZIP; it exceeds GitHub's file-size limit.
 
 Every Tableau step, with row counts before and after and the reason for each decision, is documented in [`tableau/cleaning_log.md`](tableau/cleaning_log.md).
 
@@ -90,7 +90,7 @@ Every Tableau step, with row counts before and after and the reason for each dec
 | File | Rows | Columns | One row is |
 |---|---|---|---|
 | `data/processed/tier2_curves.csv` | 136,679 | 34 | one Tier 2 curve, with its sample and paper metadata, UTC timestamps, publication-date parts and precision, and the flags `is_orphan`, `n_points`, `has_points` |
-| `data/processed/tier2_points.csv` | 2,337,212 | 7 | one data point of a Tier 2 curve: `figure_id`, `sample_id`, `point_index`, `x_value`, `y_value`, `prop_y`, `unit_y` |
+| `data/processed/tier2_points.csv` | 2,337,212 | 7 | one data point of a Tier 2 curve: `sample_id`, `figure_id`, `prop_y`, `unit_y`, `point_index`, `x_value`, `y_value` |
 
 Curves are identified by `figure_id` + `sample_id`. Timestamps are ISO 8601 in UTC. Orphan curves (paper ID not found) and curves without points are **flagged, not dropped**. `sample_info` is kept as the original JSON text.
 
