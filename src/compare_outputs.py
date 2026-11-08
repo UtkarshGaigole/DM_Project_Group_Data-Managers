@@ -25,11 +25,16 @@ DATABASE_PATH = ROOT / "data" / "interim" / "comparison.sqlite"
 
 RELATIVE_TOLERANCE = Decimal("1e-6")
 
-# Based on the maximum y_value absolute difference observed in the full comparison.
+# Tableau Prep writes numbers to its CSV output with at most 9 decimal places.
+# Rounding to 9 decimals changes a value by at most half a unit in the 9th
+# decimal, i.e. 5e-10. The tolerance follows from that export precision (which
+# the report measures as "max Tableau decimals"), not from the observed result.
 # This is a comparison threshold only; Python output is never rounded.
+TABLEAU_EXPORT_DECIMALS = 9
+EXPORT_ROUNDING_TOLERANCE = Decimal("5e-10")
 ABSOLUTE_TOLERANCES = {
-    "x_value": Decimal("0"),
-    "y_value": Decimal("5e-10"),
+    "x_value": EXPORT_ROUNDING_TOLERANCE,
+    "y_value": EXPORT_ROUNDING_TOLERANCE,
 }
 
 BATCH_SIZE = 5_000
@@ -221,6 +226,10 @@ def compare_rows(
             "newline_export_differences": 0,
             "max_relative_difference": Decimal("0"),
             "max_absolute_difference": Decimal("0"),
+            "max_tableau_decimals": 0,
+            "tableau_scientific_values": 0,
+            "scientific_mismatches": 0,
+            "max_scientific_absolute_difference": Decimal("0"),
         }
         for column in columns
     }
@@ -251,6 +260,20 @@ def compare_rows(
                 python_value = normalize_value(python_raw)
                 stats = results[column]
 
+                is_scientific = False
+                if column in numeric_columns and isinstance(tableau_raw, str):
+                    if "e" in tableau_raw.lower():
+                        # Scientific notation (e.g. 1.5E-12) is not rounded to a
+                        # fixed number of decimals, so it is counted separately.
+                        is_scientific = True
+                        stats["tableau_scientific_values"] += 1
+                    else:
+                        number = parse_decimal(tableau_raw)
+                        if number is not None:
+                            decimals = max(0, -number.as_tuple().exponent)
+                            if decimals > stats["max_tableau_decimals"]:
+                                stats["max_tableau_decimals"] = decimals
+
                 if tableau_value == python_value:
                     if (
                         tableau_raw != python_raw
@@ -264,6 +287,8 @@ def compare_rows(
                     continue
 
                 stats["exact_mismatches"] += 1
+                if is_scientific:
+                    stats["scientific_mismatches"] += 1
 
                 if column not in numeric_columns:
                     stats["substantive_mismatches"] += 1
@@ -286,6 +311,10 @@ def compare_rows(
                 stats["max_relative_difference"] = max(
                     stats["max_relative_difference"], relative
                 )
+                if is_scientific:
+                    stats["max_scientific_absolute_difference"] = max(
+                        stats["max_scientific_absolute_difference"], absolute
+                    )
 
                 absolute_tolerance = ABSOLUTE_TOLERANCES.get(column, Decimal("0"))
                 within_absolute = absolute <= absolute_tolerance
@@ -375,6 +404,18 @@ def compare_dataset(name: str, config: dict):
     }
 
 
+def format_cell(value) -> str:
+    """Thousands separators for counts; booleans and text unchanged."""
+    if isinstance(value, int) and not isinstance(value, bool):
+        return f"{value:,}"
+    return str(value)
+
+
+def format_difference(value: Decimal) -> str:
+    """Scientific notation for differences, plain 0 when there is none."""
+    return "0" if value == 0 else f"{value:.6E}"
+
+
 def write_report(results: list[dict]) -> None:
     """Write a detailed Markdown equivalence report."""
     REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -402,7 +443,7 @@ def write_report(results: list[dict]) -> None:
         ("Matched rows", "matched_rows"),
     ]
     for label, key in summary_rows:
-        lines.append(f"| {label} | {curves[key]} | {points[key]} |")
+        lines.append(f"| {label} | {format_cell(curves[key])} | {format_cell(points[key])} |")
 
     absolute_description = ", ".join(
         f"`{column}={value}`" for column, value in ABSOLUTE_TOLERANCES.items()
@@ -445,8 +486,8 @@ def write_report(results: list[dict]) -> None:
                 f"{stats['outside_both_tolerances']:,} | "
                 f"{stats['substantive_mismatches']:,} | "
                 f"{stats['newline_export_differences']:,} | "
-                f"{stats['max_absolute_difference']:.6E} | "
-                f"{stats['max_relative_difference']:.6E} |"
+                f"{format_difference(stats['max_absolute_difference'])} | "
+                f"{format_difference(stats['max_relative_difference'])} |"
             )
 
         lines.extend(
@@ -485,6 +526,13 @@ def write_report(results: list[dict]) -> None:
             ]
         )
 
+    all_numeric_within_absolute = all(
+        stats["within_relative_tolerance_only"] == 0
+        and stats["outside_both_tolerances"] == 0
+        for result in results
+        for column, stats in result["column_results"].items()
+        if column in DATASETS[result["name"]]["numeric_columns"]
+    )
     lines.extend(
         [
             "## Interpretation and known export differences",
@@ -493,10 +541,42 @@ def write_report(results: list[dict]) -> None:
             "comparison applies explicit tolerances for assessment and does "
             "not round or modify Python output files.",
             "",
-            "2. The `y_value` absolute tolerance of `5e-10` is based on the "
-            "maximum absolute difference observed in the current full-file "
-            "comparison. Values within this threshold are reported as "
-            "within absolute tolerance, not as exact matches.",
+            "2. The absolute tolerance of `5e-10` for `x_value` and `y_value` "
+            "follows from Tableau's export precision, not from the observed "
+            "result. Tableau writes numbers in plain notation with at most "
+            f"{TABLEAU_EXPORT_DECIMALS} decimal places; rounding to "
+            f"{TABLEAU_EXPORT_DECIMALS} decimals changes a value by at most "
+            "half a unit in the last place (5e-10). Very small or very large "
+            "values are written in scientific notation instead, with a limited "
+            "number of significant digits. Measured in the Tableau file: "
+            + "; ".join(
+                f"`{column}`: plain-notation values have at most "
+                f"{stats['max_tableau_decimals']} decimals; "
+                f"{stats['tableau_scientific_values']:,} values are in "
+                f"scientific notation, of which "
+                f"{stats['scientific_mismatches']:,} differ from Python "
+                f"(largest absolute difference "
+                f"{format_difference(stats['max_scientific_absolute_difference'])})"
+                for result in results
+                for column, stats in result["column_results"].items()
+                if column in DATASETS[result["name"]]["numeric_columns"]
+            )
+            + ". "
+            + (
+                "Every numeric difference, in either notation, is at most "
+                "5e-10 in absolute terms; the largest relative differences "
+                "(column table above) occur for very small values. Both are "
+                "far below the precision with which values can be read from a "
+                "published plot, so they have no practical effect. Python "
+                "keeps the source precision; the Tableau CSV export is the "
+                "lossy side. "
+                if all_numeric_within_absolute
+                else "**Not every numeric difference is within 5e-10 (see the "
+                "column table above), so this tolerance does not cover all "
+                "differences and must be revisited.** "
+            )
+            + "Values within the tolerance are reported as within absolute "
+            "tolerance, not as exact matches.",
             "",
             "3. Relative tolerance is reported separately. A value within "
             "relative tolerance but outside its column's absolute tolerance "

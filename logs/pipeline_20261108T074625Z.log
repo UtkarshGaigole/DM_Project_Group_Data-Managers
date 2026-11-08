@@ -1,0 +1,12 @@
+2026-11-08 07:46:25 UTC | INFO | Pipeline run started: 20261108T074625Z
+2026-11-08 07:46:25 UTC | INFO | Reading and cleaning source tables.
+2026-11-08 07:46:33 UTC | INFO | Input rows | papers=56495 | samples=106331 | curves=237313
+2026-11-08 07:46:33 UTC | INFO | Tier 2 filtering | selected=136679 | filtered_out=100634
+2026-11-08 07:46:35 UTC | INFO | Curve-points input rows: 4839779
+2026-11-08 07:46:43 UTC | INFO | Tier 2 curves output rows: 136679
+2026-11-08 07:46:43 UTC | INFO | Tier 2 points output rows: 2337212
+2026-11-08 07:46:43 UTC | INFO | Curves with points=134539 | without points=2140 | orphan curves=28
+2026-11-08 07:46:43 UTC | INFO | Saved curves output: C:\Courses\Projects\Data Management\DM_Project_Group_Data-Managers\data\processed\tier2_curves.csv
+2026-11-08 07:46:43 UTC | INFO | Saved points output: C:\Courses\Projects\Data Management\DM_Project_Group_Data-Managers\data\processed\tier2_points.csv
+2026-11-08 07:46:43 UTC | INFO | Pipeline finished | status=SUCCESS | duration_seconds=18.568
+2026-11-08 07:46:43 UTC | INFO | Run summary: C:\Courses\Projects\Data Management\DM_Project_Group_Data-Managers\logs\run_summary.csv

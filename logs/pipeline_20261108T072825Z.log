@@ -1,0 +1,14 @@
+2026-11-08 07:28:25 UTC | INFO | Pipeline run started: 20261108T072825Z
+2026-11-08 07:28:25 UTC | INFO | Reading and cleaning source tables.
+2026-11-08 07:28:27 UTC | ERROR | Pipeline failed.
+Traceback (most recent call last):
+  File "C:\Courses\Projects\Data Management\DM_Project_Group_Data-Managers\src\clean_data.py", line 486, in main
+    papers = clean_papers_data()
+  File "C:\Courses\Projects\Data Management\DM_Project_Group_Data-Managers\src\clean_data.py", line 244, in clean_papers_data
+    papers = clean_publication_precision(papers)
+  File "C:\Courses\Projects\Data Management\DM_Project_Group_Data-Managers\src\clean_data.py", line 193, in clean_publication_precision
+    parts = [part.strip() for part in value.split(",")]
+                                      ^^^^^^^^^^^
+AttributeError: 'float' object has no attribute 'split'
+2026-11-08 07:28:27 UTC | INFO | Pipeline finished | status=FAILED | duration_seconds=2.408
+2026-11-08 07:28:27 UTC | INFO | Run summary: C:\Courses\Projects\Data Management\DM_Project_Group_Data-Managers\logs\run_summary.csv
