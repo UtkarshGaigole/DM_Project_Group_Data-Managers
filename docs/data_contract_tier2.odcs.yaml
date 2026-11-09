@@ -1,0 +1,352 @@
+# Data contract for the Starrydata Tier 2 data product
+# Format: Open Data Contract Standard (ODCS) style, as introduced in the
+# Data Management course, Chapter 4 ("Data Contracts: A Real Example (ODCS)").
+#
+# Every value below is taken from the frozen repository (tag technical-freeze):
+#   column lists        -> src/clean_data.py (TIER2_CURVE_COLUMNS, TIER2_POINT_COLUMNS)
+#   null counts         -> docs/evidence/equivalence_report.md (Tableau = Python)
+#   meanings and units  -> docs/Data_Dictionary.md
+#   counts and rules    -> tableau/cleaning_log.md, docs/Issue_Register.md
+#   roles and limits    -> docs/Data_Governance.md
+# Expected counts apply to snapshot 20261001_starrydata2. A new snapshot needs a
+# new contract version with its own expected counts (see "changeManagement").
+
+apiVersion: v3.0.2
+kind: DataContract
+id: starrydata-tier2-group6
+name: starrydata_tier2
+version: 1.0.0
+status: active
+domain: materials-science
+dataProduct: Starrydata Tier 2 thermoelectric curves
+
+description:
+  purpose: >-
+    Validated, documented thermoelectric curve data for analysis and for
+    assessing machine-learning use. Tier 2 = curves in the ThermoelectricMaterials
+    project for six core properties (Seebeck coefficient, Electrical conductivity,
+    Electrical resistivity, Thermal conductivity, Power factor, ZT), matched by
+    exact name, with Temperature on the x-axis.
+  limitations: >-
+    Values are digitised from published figures and carry no per-point uncertainty.
+    Name variants and unit errors (about 760 curves) are excluded, not merged.
+    Physical range checks (T > 0 K, kappa > 0, ZT >= 0) and cross-property
+    consistency checks were not run. One paper (SID 31709) has publication month 0,
+    kept as recorded. Not certified as AI-ready for a specific prediction task:
+    conditionally suitable, Tier 2 only (see docs/Data_Governance.md).
+  usage: >-
+    Join curves to points on (figure_id, sample_id). Never join papers on DOI
+    (not unique). For model training, split train/test by DOI (or SID where DOI
+    is missing) and exclude curves with has_points = false from point-level work.
+
+team:
+  name: Group 6 "Data-Managers", SRH University of Applied Sciences Heidelberg
+  members:
+    - username: utkarsh-gaigole
+      name: Utkarsh Gaigole
+      role: Project lead; Tableau Prep flow (custodian)
+    - username: aditya-pawar
+      name: Aditya Sanjay Pawar
+      role: Python pipeline (custodian)
+    - username: akshay-sreedevi
+      name: Akshay Anilkumar Sreedevi
+      role: Data steward (governance, data dictionary)
+    - username: sreelakshmi-sivaraman
+      name: Sreelakshmi Koyambrath Sivaraman
+      role: Data steward (FAIR assessment, issue register)
+
+support:
+  - channel: github
+    url: https://github.com/UtkarshGaigole/DM_Project_Group_Data-Managers
+
+customProperties:
+  - property: sourceDataOwner
+    value: Starrydata research team (NIMS); contact Dr. Mato
+  - property: sourceDoi
+    value: https://doi.org/10.6084/m9.figshare.34036677.v1
+  - property: sourceSnapshot
+    value: 20261001_starrydata2 (database snapshot 2026-10-01 02:00:01 JST)
+  - property: sourceChecksumsSha256
+    value:
+      starrydata_papers.csv: b82ff398b28c15e42aa6ef6de1df9c26f3935a00dd9c76925e9dbbf1a6b4e222
+      starrydata_samples.csv: 744b1b496368c0ed24231073ae324a2ef302076801331abb0f9c69dcf9754f55
+      starrydata_curves.csv: 411515829de82041809e112a30d55c676567972c80a95965c37feb1b1ef41c96
+  - property: licence
+    value: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/); derived and modified by Group 6
+  - property: requiredCitations
+    value:
+      - >-
+        Y. Katsura, M. Kumagai, T. Mato, et al., "Starrydata: from published plots
+        to shared materials data", Science and Technology of Advanced Materials:
+        Methods 5(1), 2506976 (2025). https://doi.org/10.1080/27660400.2025.2506976
+      - Figshare snapshot https://doi.org/10.6084/m9.figshare.34036677.v1
+      - The original publications (DOI column, kept in tier2_curves)
+  - property: producedBy
+    value: src/clean_data.py (Python) and tableau/Starrydata_Pipeline.tfl (Tableau Prep), same rules
+  - property: codeVersion
+    value: Git tag technical-freeze
+  - property: equivalenceEvidence
+    value: docs/evidence/equivalence_report.md (0 substantive mismatches, Tableau vs. Python)
+  - property: changeManagement
+    value: >-
+      Semantic versioning. Removing or renaming a column, changing a type or a
+      rule is a breaking change: new major version, announced to consumers via a
+      GitHub issue before release. A new source snapshot gets a new minor version
+      with updated expected counts.
+
+slaProperties:
+  - property: frequency
+    value: per source snapshot
+    description: No fixed schedule; the product is regenerated when a new licensed snapshot is adopted.
+
+schema:
+  # ------------------------------------------------------------------ curves
+  - name: tier2_curves
+    physicalName: data/processed/tier2_curves.csv
+    physicalType: csv (UTF-8, comma-separated, header row)
+    description: One row per Tier 2 curve, with sample and paper metadata and quality flags.
+    quality:
+      - type: library
+        rule: rowCount
+        mustBe: 136679
+        description: Expected for snapshot 20261001_starrydata2.
+      - type: library
+        rule: duplicateCount
+        columns: [figure_id, sample_id]
+        mustBe: 0
+      - type: text
+        description: Exactly 34 columns, in the order of TIER2_CURVE_COLUMNS in src/clean_data.py.
+      - type: text
+        description: >-
+          Per property (prop_y): Seebeck coefficient 36,939; Thermal conductivity 23,564;
+          ZT 20,712; Electrical conductivity 18,839; Electrical resistivity 18,582;
+          Power factor 18,043 curves.
+    properties:
+      - name: n_points
+        logicalType: integer
+        required: false
+        description: Number of points of the curve. Null (not 0) when the curve has no points (2,140 curves).
+      - name: has_points
+        logicalType: boolean
+        required: true
+        description: true when the curve has at least one point; false for 2,140 curves; 134,539 true.
+      - name: issued_precision
+        logicalType: string
+        required: false
+        description: >-
+          Precision of the publication date: YMD, YM, Y or Unknown. Null only for the
+          28 orphan curves (no paper record). No month or day is ever invented.
+        quality:
+          - type: library
+            rule: validValues
+            validValues: [YMD, YM, Y, Unknown]
+      - name: issued_year
+        logicalType: integer
+        required: false
+        description: Publication year; null when no usable date or orphan (803 nulls).
+      - name: issued_month
+        logicalType: integer
+        required: false
+        description: Publication month 1-12; null when the source gives no month (18,489 nulls). SID 31709 carries 0 as recorded.
+      - name: issued_day
+        logicalType: integer
+        required: false
+        description: Publication day; null when the source gives no day (72,198 nulls).
+      - name: sample_name
+        logicalType: string
+        required: false
+        description: Name or label of the material sample (32 nulls). Literal text such as "NA" is kept as text.
+      - name: composition_details
+        logicalType: string
+        required: false
+        description: Additional composition detail; mostly empty (129,401 nulls). May contain line breaks.
+      - name: sample_info
+        logicalType: string
+        required: false
+        description: Raw JSON from the source, unchanged and not flattened (7,639 nulls).
+      - name: SID
+        logicalType: string
+        required: true
+        description: Starrydata paper identifier, read as text.
+      - name: DOI
+        logicalType: string
+        required: true
+        description: DOI of the source paper. Not unique in papers; never use as a join key.
+      - name: composition
+        logicalType: string
+        required: false
+        description: Composition associated with the curve (250 nulls).
+      - name: sample_id
+        logicalType: string
+        required: true
+        primaryKey: true
+        primaryKeyPosition: 2
+        description: Sample identifier, read as text; part of the curve key.
+      - name: figure_id
+        logicalType: string
+        required: true
+        primaryKey: true
+        primaryKeyPosition: 1
+        description: Figure identifier, read as text; part of the curve key.
+      - name: figure_name
+        logicalType: string
+        required: true
+        description: Figure or panel label from the source paper.
+      - name: prop_x
+        logicalType: string
+        required: true
+        description: x-axis property.
+        quality:
+          - type: library
+            rule: validValues
+            validValues: [Temperature]
+      - name: prop_y
+        logicalType: string
+        required: true
+        description: y-axis property, one of the six exact core names.
+        quality:
+          - type: library
+            rule: validValues
+            validValues:
+              - Seebeck coefficient
+              - Electrical conductivity
+              - Electrical resistivity
+              - Thermal conductivity
+              - Power factor
+              - ZT
+      - name: unit_x
+        logicalType: string
+        required: true
+        description: Unit of the x-axis values.
+        quality:
+          - type: library
+            rule: validValues
+            validValues: [K]
+      - name: unit_y
+        logicalType: string
+        required: true
+        description: >-
+          Unit of the y-axis values; exactly one unit per property:
+          Seebeck coefficient V*K^(-1); Electrical conductivity ohm^(-1)*m^(-1);
+          Electrical resistivity ohm*m; Thermal conductivity W*m^(-1)*K^(-1);
+          Power factor W*m^(-1)*K^(-2); ZT - (dimensionless).
+      - name: created_at_utc
+        logicalType: date
+        logicalTypeOptions:
+          format: YYYY-MM-DD HH:MM:SS
+          timezone: UTC
+        required: true
+        description: Time the curve record was created in Starrydata (database timestamp, not a measurement date).
+      - name: updated_at_utc
+        logicalType: date
+        logicalTypeOptions:
+          format: YYYY-MM-DD HH:MM:SS
+          timezone: UTC
+        required: true
+        description: Time the curve record was last updated; never before created_at_utc.
+      - name: project_names
+        logicalType: string
+        required: true
+        description: Starrydata project labels of the curve (JSON array as text).
+      - name: comments
+        logicalType: string
+        required: false
+        description: Source comments or measurement conditions (88,814 nulls; the placeholder "{}" means no comment).
+      - name: URL
+        logicalType: string
+        required: false
+        description: URL of the paper (null for the 28 orphan curves).
+      - name: author
+        logicalType: string
+        required: false
+        description: Author records (JSON array as text); 63 nulls.
+      - name: title
+        logicalType: string
+        required: false
+        description: Title of the source paper (null for the 28 orphan curves).
+      - name: is_orphan
+        logicalType: boolean
+        required: true
+        description: true when the curve's SID does not exist in papers; 28 true. Computed from the join, never hard-coded.
+      - name: container_title
+        logicalType: string
+        required: false
+        description: Journal or containing-work title (28 nulls).
+      - name: container_title_short
+        logicalType: string
+        required: false
+        description: Abbreviated journal title (3,398 nulls).
+      - name: volume
+        logicalType: string
+        required: false
+        description: Volume as recorded (3,046 nulls).
+      - name: issue
+        logicalType: string
+        required: false
+        description: Issue as recorded (15,034 nulls).
+      - name: page
+        logicalType: string
+        required: false
+        description: Page or page range as recorded (5,272 nulls).
+      - name: ISSN
+        logicalType: string
+        required: false
+        description: One or more comma-separated ISSNs (3,068 nulls).
+      - name: publisher
+        logicalType: string
+        required: false
+        description: Publisher name (28 nulls).
+
+  # ------------------------------------------------------------------ points
+  - name: tier2_points
+    physicalName: data/processed/tier2_points.csv
+    physicalType: csv (UTF-8, comma-separated, header row)
+    description: One row per digitised point of a Tier 2 curve (first normal form).
+    quality:
+      - type: library
+        rule: rowCount
+        mustBe: 2337212
+        description: Expected for snapshot 20261001_starrydata2; points of 134,539 curves.
+      - type: library
+        rule: duplicateCount
+        columns: [figure_id, sample_id, point_index]
+        mustBe: 0
+      - type: text
+        description: >-
+          Every (figure_id, sample_id) exists in tier2_curves with has_points = true.
+          No column contains nulls.
+    properties:
+      - name: sample_id
+        logicalType: string
+        required: true
+        primaryKey: true
+        primaryKeyPosition: 2
+        description: Sample identifier; with figure_id links to tier2_curves.
+      - name: figure_id
+        logicalType: string
+        required: true
+        primaryKey: true
+        primaryKeyPosition: 1
+        description: Figure identifier; with sample_id links to tier2_curves.
+      - name: prop_y
+        logicalType: string
+        required: true
+        description: y-axis property of the point's curve (one of the six core names).
+      - name: unit_y
+        logicalType: string
+        required: true
+        description: Unit of y_value (one unit per property, see tier2_curves.unit_y).
+      - name: point_index
+        logicalType: integer
+        required: true
+        primaryKey: true
+        primaryKeyPosition: 3
+        description: Position of the point in the source arrays; starts at 1; keeps the digitised order.
+      - name: x_value
+        logicalType: number
+        required: true
+        description: Digitised x value in K, at full source precision.
+      - name: y_value
+        logicalType: number
+        required: true
+        description: Digitised y value in the curve's unit_y, at full source precision.
