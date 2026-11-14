@@ -50,10 +50,10 @@ team:
       role: Python pipeline (custodian)
     - username: akshay-sreedevi
       name: Akshay Anilkumar Sreedevi
-      role: Data steward (governance, data dictionary)
+      role: Data steward (governance, AI-risk assessment)
     - username: sreelakshmi-sivaraman
       name: Sreelakshmi Koyambrath Sivaraman
-      role: Data steward (FAIR assessment, issue register)
+      role: Data steward (data dictionary, FAIR assessment, issue register)
 
 support:
   - channel: github
