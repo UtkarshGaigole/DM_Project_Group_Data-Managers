@@ -1,4 +1,4 @@
-# FAIR Assessment and Metadata Record (Before Clean up)
+# FAIR Assessment and Metadata Record
 
 **Dataset:** Starrydata dataset snapshot  
 **Version DOI:** [10.6084/m9.figshare.34036677.v1](https://doi.org/10.6084/m9.figshare.34036677.v1)  

@@ -5,7 +5,7 @@
 **Snapshot timestamp:** `2026-10-01 02:00:01 UTC+0900 (JST)` (`2026-09-30 17:00:01 UTC`)  
 **Dataset DOI:** [10.6084/m9.figshare.34036677.v1](https://doi.org/10.6084/m9.figshare.34036677.v1)  
 **Source files:** `starrydata_papers.csv`, `starrydata_samples.csv`, `starrydata_curves.csv`  
-**Version:** v1.2, 2026-11-08 (DOI-grouped splits; parallel Python/Tableau lineage; D12 wording; flattening blocker scoped)  
+**Version:** v1.3, 2026-11-14 (data dictionary stewardship corrected to Sreelakshmi Koyambrath Sivaraman; earlier: DOI-grouped splits, parallel Python/Tableau lineage, D12 wording, flattening blocker scoped)  
 **License:** CC BY 4.0, shown on the Figshare record and confirmed by Dr. Mato in email dated 29 October 2026. The Figshare snapshot is the project source; a later GitHub release without a stated license is excluded.  
 
 
@@ -17,7 +17,7 @@ This document records ownership, stewardship, lineage, and the controls required
 |---|---|---|
 | Source data owner | Maintains Starrydata and decides on upstream corrections or clarification requests. | Starrydata Research Team; Dr. Mato is the project contact. |
 | Project lead and integration | Coordinates scope, decisions, and integration of the project outputs. | Utkarsh Gaigole. |
-| Data steward and documentation | Maintains the issue register, data dictionary, governance and AI-risk documentation, FAIR record, and documentation of decisions. | Akshay Anilkumar Sreedevi (governance and data dictionary); Sreelakshmi Koyambrath Sivaraman (FAIR/metadata and issue register, per tracker). |
+| Data steward and documentation | Maintains the issue register, data dictionary, governance and AI-risk documentation, FAIR record, and documentation of decisions. | Akshay Anilkumar Sreedevi (governance and AI-risk documentation); Sreelakshmi Koyambrath Sivaraman (data dictionary, FAIR/metadata and issue register). |
 | Pipeline and profiling | Maintains the profiling notebook and Python loading, flattening, validation, and transformation functions. | Aditya Sanjay Pawar. |
 | Tableau Prep flow | Maintains the visible Tableau Prep cleaning and transformation flow. | Utkarsh Gaigole. |
 | Data users | Use the documented outputs for analysis and model development, subject to their scope and limitations. | Materials science researchers and data scientists. |

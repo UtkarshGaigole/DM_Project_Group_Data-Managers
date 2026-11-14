@@ -159,5 +159,5 @@ DM_Project_Group_Data-Managers/
 |---|---|
 | Utkarsh Gaigole | Project lead · Tableau Prep flow and cleaning log · integration |
 | Aditya Sanjay Pawar | Profiling notebook · Python pipeline and tests |
-| Sreelakshmi Koyambrath Sivaraman | Issue register · FAIR assessment · dictionary counts script · slides |
-| Akshay Anilkumar Sreedevi | Data dictionary · data governance and AI-risk assessment |
+| Sreelakshmi Koyambrath Sivaraman | Issue register · FAIR assessment · data dictionary and dictionary counts script · slides |
+| Akshay Anilkumar Sreedevi | Data governance and AI-risk assessment |
